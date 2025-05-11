@@ -2,10 +2,11 @@
 <div id="side-menu">
   <a href="index.html">Home</a>
   <a href="submit.html">Submit a Joke</a>
-  <a href="register.html">Register</a>
-  <a href="login.html">Login</a>
-  <a href="#" onclick="logout()">Logout</a>
+  <a href="register.html" id="register-link">Register</a>
+  <a href="login.html" id="login-link">Login</a>
+  <a href="#" onclick="logout()" id="logout-link" style="display:none;">Logout</a>
 </div>
+
 <script>
   function toggleMenu() {
     const menu = document.getElementById("side-menu");
@@ -15,5 +16,13 @@
   function logout() {
     localStorage.removeItem('jokedropUser');
     window.location.href = 'index.html';
+  }
+
+  // Show/hide menu links based on session
+  const user = localStorage.getItem('jokedropUser');
+  if (user) {
+    document.getElementById('logout-link').style.display = 'block';
+    document.getElementById('login-link').style.display = 'none';
+    document.getElementById('register-link').style.display = 'none';
   }
 </script>
