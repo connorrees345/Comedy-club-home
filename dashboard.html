@@ -21,7 +21,16 @@
   </div>
 
   <h1>Your Joke Dashboard</h1>
-  <div id="welcome"></div>
+
+  <div id="profile">
+    <h2>Your Profile</h2>
+    <form id="profileForm">
+      <input type="text" id="name" placeholder="Display Name" /><br><br>
+      <input type="text" id="location" placeholder="Location" /><br><br>
+      <button type="submit">Save Profile</button>
+    </form>
+    <p id="profileStatus"></p>
+  </div>
 
   <h2>✅ Approved Jokes</h2>
   <ul id="approved-jokes"></ul>
@@ -45,7 +54,8 @@
       const email = localStorage.getItem("jokedropUser");
       const approvedList = document.getElementById("approved-jokes");
       const pendingList = document.getElementById("pending-jokes");
-      const welcome = document.getElementById("welcome");
+      const profileForm = document.getElementById("profileForm");
+      const profileStatus = document.getElementById("profileStatus");
 
       if (!email) {
         window.location.href = "login.html";
@@ -57,36 +67,66 @@
       document.getElementById("register-link").style.display = "none";
       document.getElementById("dashboard-link").style.display = "block";
 
-      welcome.innerHTML = `<p style="font-weight: bold; color: lightgreen;">Logged in as ${email}</p>`;
+      // Load profile
+      try {
+        const res = await fetch(`https://jokedrop-auth.connorrees345.repl.co/profile?email=${encodeURIComponent(email)}`);
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById("name").value = data.name || "";
+          document.getElementById("location").value = data.location || "";
+        }
+      } catch (err) {
+        console.error("Error loading profile:", err);
+      }
 
+      // Handle profile form submit
+      profileForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const name = document.getElementById("name").value;
+        const location = document.getElementById("location").value;
+
+        try {
+          const res = await fetch("https://jokedrop-auth.connorrees345.repl.co/profile", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, name, location })
+          });
+          const result = await res.json();
+          profileStatus.textContent = result.success ? "✅ Profile saved!" : "❌ Error saving profile.";
+          profileStatus.style.color = result.success ? "lightgreen" : "salmon";
+        } catch (error) {
+          profileStatus.textContent = "❌ Could not connect to server.";
+          profileStatus.style.color = "salmon";
+        }
+      });
+
+      // Load jokes
       try {
         const res = await fetch(`https://jokedrop-auth.connorrees345.repl.co/jokes?email=${encodeURIComponent(email)}`);
         const data = await res.json();
 
-        if (!data.success) throw new Error(data.error || 'Failed to fetch jokes.');
+        if (data.success) {
+          const approved = data.jokes.filter(j => j.status === 'approved');
+          const pending = data.jokes.filter(j => j.status === 'pending');
 
-        const approved = data.jokes.filter(j => j.status === 'approved');
-        const pending = data.jokes.filter(j => j.status === 'pending');
+          if (approved.length === 0) approvedList.innerHTML = '<li>No approved jokes yet.</li>';
+          if (pending.length === 0) pendingList.innerHTML = '<li>No pending jokes.</li>';
 
-        if (approved.length === 0) approvedList.innerHTML = '<li>No approved jokes yet.</li>';
-        if (pending.length === 0) pendingList.innerHTML = '<li>No jokes awaiting review.</li>';
+          approved.forEach(j => {
+            const li = document.createElement('li');
+            li.textContent = j.joke;
+            approvedList.appendChild(li);
+          });
 
-        approved.forEach(j => {
-          const li = document.createElement('li');
-          li.textContent = j.joke;
-          approvedList.appendChild(li);
-        });
-
-        pending.forEach(j => {
-          const li = document.createElement('li');
-          li.textContent = j.joke;
-          pendingList.appendChild(li);
-        });
-
+          pending.forEach(j => {
+            const li = document.createElement('li');
+            li.textContent = j.joke;
+            pendingList.appendChild(li);
+          });
+        }
       } catch (error) {
-        approvedList.innerHTML = '<li style="color: red;">Failed to load jokes.</li>';
-        pendingList.innerHTML = '<li style="color: red;">Failed to load jokes.</li>';
-        console.error(error);
+        approvedList.innerHTML = '<li style="color:red;">Server error</li>';
+        pendingList.innerHTML = '<li style="color:red;">Server error</li>';
       }
     });
   </script>
