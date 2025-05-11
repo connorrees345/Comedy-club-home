@@ -1,73 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="google-adsense-account" content="ca-pub-8362260057219418" />
   <title>Joke Drop</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-  <!-- Slide-Out Menu -->
-  <div id="menu-button" onclick="toggleMenu()">☰</div>
-  <div id="side-menu">
-    <a href="index.html">Home</a>
-    <a href="submit.html">Submit a Joke</a>
-    <a href="dashboard.html" id="dashboard-link" style="display: none;">Dashboard</a>
-    <a href="register.html" id="register-link">Register</a>
-    <a href="login.html" id="login-link">Login</a>
-    <a href="#" onclick="logout()" id="logout-link" style="display: none;">Logout</a>
-  </div>
+  <div id="menu-container"></div>
 
   <h1>Welcome to Joke Drop!</h1>
   <p>Tap the mic to hear a joke</p>
 
   <button id="mic-button" onclick="getJoke()">
-    <img src="https://i.imgur.com/QLAfA42.png" alt="Microphone" />
+    <img src="https://i.imgur.com/QLAfA42.png" alt="Microphone">
   </button>
 
   <div id="joke">Waiting for your first laugh...</div>
 
   <script>
-    function toggleMenu() {
-      const menu = document.getElementById("side-menu");
-      const isOpen = menu.style.left === "0px";
-      menu.style.left = isOpen ? (window.innerWidth <= 768 ? "-100%" : "-220px") : "0px";
-    }
+    fetch('/menu.html')
+      .then(res => res.text())
+      .then(data => {
+        document.getElementById('menu-container').innerHTML = data;
 
-    function logout() {
-      localStorage.removeItem("jokedropUser");
-      window.location.href = "index.html";
-    }
+        window.toggleMenu = function () {
+          const menu = document.getElementById("side-menu");
+          menu.style.left = (menu.style.left === "0px") ? (window.innerWidth <= 768 ? "-100%" : "-220px") : "0px";
+        };
 
-    document.addEventListener("DOMContentLoaded", () => {
-      const user = localStorage.getItem("jokedropUser");
-      if (user) {
-        document.getElementById("logout-link").style.display = "block";
-        document.getElementById("login-link").style.display = "none";
-        document.getElementById("register-link").style.display = "none";
-        document.getElementById("dashboard-link").style.display = "block";
+        const user = localStorage.getItem('jokedropUser');
+        if (user) {
+          document.getElementById('logout-link')?.style?.display = 'block';
+          document.getElementById('login-link')?.style?.display = 'none';
+          document.getElementById('register-link')?.style?.display = 'none';
 
-        const welcomeMsg = document.createElement("p");
-        welcomeMsg.textContent = `Welcome, ${user}!`;
-        welcomeMsg.style.fontWeight = "bold";
-        welcomeMsg.style.color = "lightgreen";
-        document.body.prepend(welcomeMsg);
-      }
-    });
+          const welcomeMsg = document.createElement('p');
+          welcomeMsg.textContent = `Welcome, ${user}!`;
+          welcomeMsg.style.fontWeight = 'bold';
+          welcomeMsg.style.color = 'lightgreen';
+          document.body.prepend(welcomeMsg);
+        }
+      });
 
     async function getJoke() {
-      const jokeBox = document.getElementById("joke");
+      const jokeBox = document.getElementById('joke');
       jokeBox.textContent = "Loading a joke...";
 
       try {
-        const res = await fetch("https://icanhazdadjoke.com/", {
-          headers: { Accept: "application/json" }
+        const res = await fetch('https://icanhazdadjoke.com/', {
+          headers: { 'Accept': 'application/json' }
         });
-
-        if (!res.ok) throw new Error("Failed to fetch");
-
         const data = await res.json();
         jokeBox.textContent = data.joke;
       } catch (err) {
