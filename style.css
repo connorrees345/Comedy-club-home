@@ -71,6 +71,12 @@ body {
   height: auto;
   display: block;
   background: transparent;
+  margin: 20px auto 0;
+  transition: transform 0.2s;
+}
+
+#mic-button img:hover {
+  transform: scale(1.1);
 }
 
 input, textarea {
@@ -110,9 +116,13 @@ label {
   font-weight: bold;
 }
 
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 768px) {
   body {
     padding: 10px;
+  }
+  #side-menu {
+    width: 100%;
+    left: -100%;
   }
   #mic-button img {
     width: 60px;
