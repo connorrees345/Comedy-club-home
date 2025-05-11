@@ -8,7 +8,16 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="menu-container"></div>
+
+  <!-- Embedded Menu Bar -->
+  <div id="menu-button" onclick="toggleMenu()">☰</div>
+  <div id="side-menu">
+    <a href="index.html">Home</a>
+    <a href="submit.html">Submit a Joke</a>
+    <a href="register.html" id="register-link">Register</a>
+    <a href="login.html" id="login-link">Login</a>
+    <a href="#" onclick="logout()" id="logout-link" style="display:none;">Logout</a>
+  </div>
 
   <h1>Submit a Joke</h1>
 
@@ -21,32 +30,31 @@
   <p id="response"></p>
 
   <script>
-    fetch('/menu.html')
-      .then(res => res.text())
-      .then(data => {
-        document.getElementById('menu-container').innerHTML = data;
+    // Menu logic
+    function toggleMenu() {
+      const menu = document.getElementById("side-menu");
+      menu.style.left = (menu.style.left === "0px") ? "-220px" : "0px";
+    }
 
-        window.toggleMenu = function () {
-          const menu = document.getElementById("side-menu");
-          menu.style.left = (menu.style.left === "0px") ? "-220px" : "0px";
-        };
+    function logout() {
+      localStorage.removeItem('jokedropUser');
+      window.location.href = 'index.html';
+    }
 
-        const user = localStorage.getItem('jokedropUser');
-        if (user) {
-          document.getElementById('logout-link')?.style?.display = 'block';
-          document.getElementById('login-link')?.style?.display = 'none';
-          document.getElementById('register-link')?.style?.display = 'none';
-        } else {
-          document.getElementById('jokeForm').style.display = 'none';
-
-          const responseBox = document.getElementById('response');
-          responseBox.innerHTML = `
-            <strong>You must be logged in to submit a joke.</strong><br><br>
-            <a href="login.html"><button>Login</button></a>
-            <a href="register.html"><button>Create Account</button></a>
-          `;
-        }
-      });
+    const user = localStorage.getItem('jokedropUser');
+    if (user) {
+      document.getElementById('logout-link')?.style?.display = 'block';
+      document.getElementById('login-link')?.style?.display = 'none';
+      document.getElementById('register-link')?.style?.display = 'none';
+    } else {
+      document.getElementById('jokeForm').style.display = 'none';
+      const responseBox = document.getElementById('response');
+      responseBox.innerHTML = `
+        <strong>You must be logged in to submit a joke.</strong><br><br>
+        <a href="login.html"><button>Login</button></a>
+        <a href="register.html"><button>Create Account</button></a>
+      `;
+    }
 
     document.getElementById("jokeForm").addEventListener("submit", async function(e) {
       e.preventDefault();
