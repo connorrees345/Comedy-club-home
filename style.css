@@ -7,8 +7,76 @@ body {
   background-repeat: no-repeat;
   color: white;
   text-align: center;
-  padding: 20px;
-  text-shadow: 1px 1px 2px black;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.hero {
+  margin: auto;
+  padding: 30px;
+  background-color: rgba(0, 0, 0, 0.6);
+  border-radius: 16px;
+  max-width: 700px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.5);
+}
+
+h1 {
+  font-family: 'Bangers', cursive;
+  font-size: 3em;
+  margin-bottom: 0.2em;
+}
+
+.sub {
+  font-size: 1.2em;
+  color: #ffc;
+  margin-bottom: 1em;
+}
+
+.highlight {
+  color: #ffd900;
+}
+
+#signup-promo {
+  margin: 20px auto;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 15px 20px;
+  border-radius: 12px;
+  font-size: 1.1em;
+  font-weight: bold;
+  color: #ffe87c;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+  max-width: 600px;
+}
+
+#mic-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  transition: transform 0.2s ease-in-out;
+}
+
+#mic-button img {
+  width: 100px;
+  height: auto;
+  background: transparent;
+}
+
+#mic-button:hover {
+  transform: scale(1.1);
+}
+
+#joke {
+  font-size: 1.3em;
+  max-width: 600px;
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 15px 20px;
+  border-radius: 10px;
+  margin: 0 auto;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.5);
 }
 
 #menu-button {
@@ -47,84 +115,17 @@ body {
   background-color: rgba(255, 255, 255, 0.1);
 }
 
-#joke {
-  font-size: 1.3em;
-  max-width: 600px;
-  background-color: rgba(0, 0, 0, 0.6);
-  padding: 15px 20px;
-  border-radius: 10px;
-  margin-top: 20px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-#mic-button {
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  outline: none;
-}
-
-#mic-button img {
-  width: 80px;
-  height: auto;
-  display: block;
-  background: transparent;
-  margin: 20px auto 0;
-  transition: transform 0.2s;
-}
-
-#mic-button img:hover {
-  transform: scale(1.1);
-}
-
-input, textarea {
-  width: 90%;
-  max-width: 400px;
-  padding: 10px;
-  margin: 10px 0;
-  font-size: 1em;
-  border-radius: 5px;
-  border: none;
-}
-
-button {
-  padding: 10px 20px;
-  font-size: 1em;
-  cursor: pointer;
-  background-color: #28a745;
-  color: white;
-  border: none;
-  border-radius: 5px;
-}
-
-form {
-  margin-bottom: 30px;
-  background-color: rgba(0,0,0,0.6);
-  padding: 20px;
-  border-radius: 12px;
-  max-width: 500px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-label {
-  display: block;
-  margin-top: 10px;
-  text-align: left;
-  font-weight: bold;
-}
-
 @media screen and (max-width: 768px) {
-  body {
-    padding: 10px;
+  .hero {
+    padding: 15px;
   }
+
+  #mic-button img {
+    width: 70px;
+  }
+
   #side-menu {
     width: 100%;
     left: -100%;
-  }
-  #mic-button img {
-    width: 60px;
   }
 }
