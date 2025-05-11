@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- Slide-out menu -->
   <div id="menu-button" onclick="toggleMenu()">☰</div>
   <div id="side-menu">
     <a href="index.html">Home</a>
@@ -25,11 +26,13 @@
   <p id="response"></p>
 
   <script>
+    // Slide-out menu toggle
     function toggleMenu() {
       const menu = document.getElementById("side-menu");
       menu.style.left = (menu.style.left === "0px") ? "-220px" : "0px";
     }
 
+    // Joke submission logic
     document.getElementById("jokeForm").addEventListener("submit", async function(e) {
       e.preventDefault();
       const name = document.getElementById("name").value;
@@ -46,39 +49,6 @@
         ? `Thanks! Your joke was submitted for review: <a href="${result.url}" target="_blank">View on GitHub</a>`
         : `Error: ${result.error}`;
       document.getElementById("response").innerHTML = message;
-    });
-  </script>
-</body>
-</html>
-
-    const form = document.getElementById('jokeForm');
-    const responseEl = document.getElementById('response');
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const name = document.getElementById('name').value;
-      const joke = document.getElementById('joke').value;
-
-      responseEl.textContent = 'Sending joke...';
-
-      try {
-        const res = await fetch('https://f657d9ad-31eb-4276-b388-8e306b9f152d-00-1qyjgzqqat80l.worf.replit.dev/submit', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, joke })
-        });
-
-        const data = await res.json();
-
-        if (data.success) {
-          responseEl.innerHTML = `Thanks! Your joke was submitted: <a href="${data.url}" target="_blank">View on GitHub</a>`;
-          form.reset();
-        } else {
-          responseEl.textContent = `Error: ${data.error}`;
-        }
-      } catch (err) {
-        responseEl.textContent = `Something went wrong: ${err.message}`;
-      }
     });
   </script>
 </body>
