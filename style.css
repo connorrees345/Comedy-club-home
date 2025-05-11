@@ -1,7 +1,7 @@
 body {
   margin: 0;
   font-family: 'Fredoka', sans-serif;
-  background-image: url('background.webp'); /* replace with full URL if needed */
+  background-image: url('background.webp'); /* or use full image URL */
   background-size: cover;
   background-position: center center;
   background-repeat: no-repeat;
@@ -50,14 +50,14 @@ body {
   background-color: rgba(255, 255, 255, 0.1);
 }
 
-/* Joke output box */
+/* Joke box */
 #joke {
   font-size: 1.3em;
   max-width: 600px;
-  background-color: rgba(0, 0, 0, 0.6);
-  padding: 15px 20px;
-  border-radius: 10px;
   margin: 20px auto;
+  padding: 15px 20px;
+  background-color: rgba(0, 0, 0, 0.6);
+  border-radius: 10px;
 }
 
 /* Mic button */
@@ -78,7 +78,7 @@ body {
   transform: scale(1.1);
 }
 
-/* Form styles */
+/* Inputs & buttons */
 input,
 textarea {
   width: 90%;
@@ -88,7 +88,7 @@ textarea {
   font-size: 1em;
   border-radius: 5px;
   border: none;
-  box-shadow: 0 0 5px rgba(0,0,0,0.3);
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
 }
 
 button {
@@ -105,10 +105,10 @@ button:hover {
   background-color: #218838;
 }
 
-/* Mobile optimization */
+/* Mobile compatibility */
 @media (max-width: 768px) {
   body {
-    background-attachment: scroll; /* fixes iPhone Safari glitch */
+    background-attachment: scroll; /* Fix Safari background issue */
   }
 
   #side-menu {
@@ -123,6 +123,5 @@ button:hover {
 
   #joke {
     font-size: 1.1em;
-    margin: 15px auto;
   }
 }
