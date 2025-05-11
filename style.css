@@ -53,7 +53,7 @@ body {
   background-color: rgba(0, 0, 0, 0.6);
   padding: 15px 20px;
   border-radius: 10px;
-  margin: 20px auto 0 auto; /* <-- centers it horizontally */
+  margin: 20px auto 0 auto; /* center on desktop and mobile */
   box-sizing: border-box;
 }
 
@@ -92,4 +92,10 @@ button {
   color: white;
   border: none;
   border-radius: 5px;
+}
+
+#response {
+  margin-top: 20px;
+  font-size: 1.1em;
+  color: #90ee90;
 }
