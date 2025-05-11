@@ -37,8 +37,14 @@
           document.getElementById('login-link')?.style?.display = 'none';
           document.getElementById('register-link')?.style?.display = 'none';
         } else {
-          alert("You must be logged in to submit a joke.");
-          window.location.href = 'login.html';
+          document.getElementById('jokeForm').style.display = 'none';
+
+          const responseBox = document.getElementById('response');
+          responseBox.innerHTML = `
+            <strong>You must be logged in to submit a joke.</strong><br><br>
+            <a href="login.html"><button>Login</button></a>
+            <a href="register.html"><button>Create Account</button></a>
+          `;
         }
       });
 
