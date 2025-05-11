@@ -13,8 +13,7 @@
   <div id="side-menu">
     <a href="index.html">Home</a>
     <a href="submit.html">Submit a Joke</a>
-    <a href="dashboard.html">Dashboard</a>
-    <a href="/.auth/logout">Logout</a>
+    <a href="#" onclick="logout()">Logout</a>
   </div>
 
   <h1>Your Profile</h1>
@@ -36,6 +35,18 @@
 
   <p id="profileStatus"></p>
 
+  <h2>Change Password</h2>
+  <form id="passwordForm">
+    <label>Current Password:</label><br>
+    <input type="password" id="currentPassword" required><br><br>
+
+    <label>New Password:</label><br>
+    <input type="password" id="newPassword" required><br><br>
+
+    <button type="submit">Change Password</button>
+  </form>
+  <p id="passwordStatus"></p>
+
   <script>
     function toggleMenu() {
       const menu = document.getElementById("side-menu");
@@ -43,22 +54,17 @@
       menu.style.left = isOpen ? (window.innerWidth <= 768 ? "-100%" : "-220px") : "0px";
     }
 
+    function logout() {
+      localStorage.removeItem("jokedropUser");
+      window.location.href = "index.html";
+    }
+
     document.addEventListener("DOMContentLoaded", async () => {
-      let user;
-      try {
-        const res = await fetch("/me");
-        user = await res.json();
-        if (!user || !user.id) {
-          document.body.innerHTML = '<h2>Please <a href="/.auth/login">log in</a> to view your dashboard.</h2>';
-          return;
-        }
-      } catch (err) {
-        document.body.innerHTML = '<h2>Error checking login. Please try again later.</h2>';
-        return;
-      }
+      const email = localStorage.getItem("jokedropUser");
+      if (!email) return (window.location.href = "login.html");
 
       try {
-        const res = await fetch("/profile");
+        const res = await fetch(`https://jokedrop-auth.connorrees345.repl.co/profile?email=${encodeURIComponent(email)}`);
         const data = await res.json();
         if (data.success) {
           document.getElementById("name").value = data.name || "";
@@ -67,9 +73,11 @@
           document.getElementById("publicName").checked = data.privacy?.name ?? true;
           document.getElementById("publicLocation").checked = data.privacy?.location ?? true;
           document.getElementById("publicDOB").checked = data.privacy?.dob ?? false;
+        } else {
+          document.getElementById("profileStatus").textContent = "❌ Failed to load profile.";
         }
       } catch (err) {
-        document.getElementById("profileStatus").textContent = "❌ Failed to load profile.";
+        document.getElementById("profileStatus").textContent = "❌ Error loading profile.";
       }
 
       document.getElementById("profileForm").addEventListener("submit", async (e) => {
@@ -84,15 +92,36 @@
         };
 
         try {
-          const res = await fetch("/profile", {
+          const res = await fetch("https://jokedrop-auth.connorrees345.repl.co/profile", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name, location, dob, privacy })
+            body: JSON.stringify({ email, name, location, dob, privacy })
           });
           const result = await res.json();
           document.getElementById("profileStatus").textContent = result.success ? "✅ Profile updated!" : "❌ Update failed.";
         } catch (error) {
           document.getElementById("profileStatus").textContent = "❌ Server error.";
+        }
+      });
+
+      document.getElementById("passwordForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const currentPassword = document.getElementById("currentPassword").value;
+        const newPassword = document.getElementById("newPassword").value;
+        const passwordStatus = document.getElementById("passwordStatus");
+
+        try {
+          const res = await fetch("https://jokedrop-auth.connorrees345.repl.co/change-password", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, currentPassword, newPassword })
+          });
+          const data = await res.json();
+          passwordStatus.textContent = data.success ? "✅ Password changed!" : `❌ ${data.error || "Update failed"}`;
+          passwordStatus.style.color = data.success ? "lightgreen" : "salmon";
+        } catch (err) {
+          passwordStatus.textContent = "❌ Server error";
+          passwordStatus.style.color = "salmon";
         }
       });
     });
