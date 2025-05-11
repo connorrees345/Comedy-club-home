@@ -2,13 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Dashboard - Joke Drop</title>
+  <title>Your Profile - Joke Drop</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link href="https://fonts.googleapis.com/css2?family=Fredoka&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-
   <!-- Slide-Out Menu -->
   <div id="menu-button" onclick="toggleMenu()">☰</div>
   <div id="side-menu">
@@ -20,30 +19,24 @@
     <a href="#" onclick="logout()" id="logout-link" style="display: none;">Logout</a>
   </div>
 
-  <h1>Your Joke Dashboard</h1>
+  <h1>Your Profile</h1>
+  <form id="profileForm">
+    <label>Name:</label><br>
+    <input type="text" id="name" /><br>
+    <input type="checkbox" id="publicName" /> Show name publicly<br><br>
 
-  <section id="profile">
-    <h2>Your Profile</h2>
-    <div id="profile-view">
-      <p><strong>Name:</strong> <span id="display-name">Loading...</span></p>
-      <p><strong>Location:</strong> <span id="display-location">Loading...</span></p>
-      <button onclick="toggleProfileEdit()">Edit Profile</button>
-    </div>
+    <label>Location:</label><br>
+    <input type="text" id="location" /><br>
+    <input type="checkbox" id="publicLocation" /> Show location publicly<br><br>
 
-    <form id="profileForm" style="display: none;">
-      <input type="text" id="name" placeholder="Display Name" /><br><br>
-      <input type="text" id="location" placeholder="Location" /><br><br>
-      <button type="submit">Save Profile</button>
-    </form>
+    <label>Date of Birth:</label><br>
+    <input type="date" id="dob" /><br>
+    <input type="checkbox" id="publicDOB" /> Show DOB publicly<br><br>
 
-    <p id="profileStatus"></p>
-  </section>
+    <button type="submit">Save Profile</button>
+  </form>
 
-  <h2>✅ Approved Jokes</h2>
-  <ul id="approved-jokes"></ul>
-
-  <h2>⏳ Pending Jokes</h2>
-  <ul id="pending-jokes"></ul>
+  <p id="profileStatus"></p>
 
   <script>
     function toggleMenu() {
@@ -57,11 +50,6 @@
       window.location.href = "index.html";
     }
 
-    function toggleProfileEdit() {
-      const form = document.getElementById("profileForm");
-      form.style.display = form.style.display === "none" ? "block" : "none";
-    }
-
     document.addEventListener("DOMContentLoaded", async () => {
       const email = localStorage.getItem("jokedropUser");
       if (!email) return (window.location.href = "login.html");
@@ -71,83 +59,44 @@
       document.getElementById("register-link").style.display = "none";
       document.getElementById("dashboard-link").style.display = "block";
 
-      const profileStatus = document.getElementById("profileStatus");
-
-      // Load profile
       try {
         const res = await fetch(`https://jokedrop-auth.connorrees345.repl.co/profile?email=${encodeURIComponent(email)}`);
         const data = await res.json();
         if (data.success) {
-          document.getElementById("display-name").textContent = data.name || "Not set";
-          document.getElementById("display-location").textContent = data.location || "Not set";
           document.getElementById("name").value = data.name || "";
           document.getElementById("location").value = data.location || "";
+          document.getElementById("dob").value = data.dob || "";
+          document.getElementById("publicName").checked = data.privacy?.name ?? true;
+          document.getElementById("publicLocation").checked = data.privacy?.location ?? true;
+          document.getElementById("publicDOB").checked = data.privacy?.dob ?? false;
         }
       } catch (err) {
-        profileStatus.textContent = "❌ Failed to load profile";
-        profileStatus.style.color = "salmon";
+        document.getElementById("profileStatus").textContent = "❌ Failed to load profile";
       }
 
-      // Handle profile form submit
       document.getElementById("profileForm").addEventListener("submit", async (e) => {
         e.preventDefault();
         const name = document.getElementById("name").value;
         const location = document.getElementById("location").value;
+        const dob = document.getElementById("dob").value;
+        const privacy = {
+          name: document.getElementById("publicName").checked,
+          location: document.getElementById("publicLocation").checked,
+          dob: document.getElementById("publicDOB").checked
+        };
 
         try {
           const res = await fetch("https://jokedrop-auth.connorrees345.repl.co/profile", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, name, location })
+            body: JSON.stringify({ email, name, location, dob, privacy })
           });
           const result = await res.json();
-
-          if (result.success) {
-            document.getElementById("display-name").textContent = name;
-            document.getElementById("display-location").textContent = location;
-            profileStatus.textContent = "✅ Profile updated!";
-            profileStatus.style.color = "lightgreen";
-            toggleProfileEdit();
-          } else {
-            profileStatus.textContent = "❌ Failed to update profile.";
-            profileStatus.style.color = "salmon";
-          }
-        } catch {
-          profileStatus.textContent = "❌ Server error";
-          profileStatus.style.color = "salmon";
+          document.getElementById("profileStatus").textContent = result.success ? "✅ Profile updated!" : "❌ Update failed.";
+        } catch (error) {
+          document.getElementById("profileStatus").textContent = "❌ Server error.";
         }
       });
-
-      // Load jokes
-      try {
-        const res = await fetch(`https://jokedrop-auth.connorrees345.repl.co/jokes?email=${encodeURIComponent(email)}`);
-        const data = await res.json();
-        const approvedList = document.getElementById("approved-jokes");
-        const pendingList = document.getElementById("pending-jokes");
-
-        if (data.success) {
-          const approved = data.jokes.filter(j => j.status === 'approved');
-          const pending = data.jokes.filter(j => j.status === 'pending');
-
-          approvedList.innerHTML = approved.length ? "" : "<li>No approved jokes yet.</li>";
-          pendingList.innerHTML = pending.length ? "" : "<li>No pending jokes.</li>";
-
-          approved.forEach(j => {
-            const li = document.createElement("li");
-            li.textContent = j.joke;
-            approvedList.appendChild(li);
-          });
-
-          pending.forEach(j => {
-            const li = document.createElement("li");
-            li.textContent = j.joke;
-            pendingList.appendChild(li);
-          });
-        }
-      } catch {
-        document.getElementById("approved-jokes").innerHTML = "<li>Server error</li>";
-        document.getElementById("pending-jokes").innerHTML = "<li>Server error</li>";
-      }
     });
   </script>
 </body>
