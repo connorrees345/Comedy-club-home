@@ -2,64 +2,69 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <title>Joke Drop</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="google-adsense-account" content="ca-pub-8362260057219418" />
-  <title>Joke Drop</title>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="menu-container"></div>
+  <!-- Slide-out menu -->
+  <div id="menu-button" onclick="toggleMenu()">☰</div>
+  <div id="side-menu">
+    <a href="index.html">Home</a>
+    <a href="submit.html">Submit a Joke</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="login.html" id="login-link">Login</a>
+    <a href="register.html" id="register-link">Register</a>
+    <a href="#" id="logout-link" style="display:none;" onclick="logout()">Logout</a>
+  </div>
 
   <h1>Welcome to Joke Drop!</h1>
   <p>Tap the mic to hear a joke</p>
 
-  <button id="mic-button" onclick="getJoke()">
+  <button id="mic-button">
     <img src="https://i.imgur.com/QLAfA42.png" alt="Microphone">
   </button>
 
   <div id="joke">Waiting for your first laugh...</div>
 
   <script>
-    fetch('/menu.html')
-      .then(res => res.text())
-      .then(data => {
-        document.getElementById('menu-container').innerHTML = data;
+    function toggleMenu() {
+      const menu = document.getElementById("side-menu");
+      const isOpen = menu.style.left === "0px";
+      menu.style.left = isOpen ? (window.innerWidth <= 768 ? "-100%" : "-220px") : "0px";
+    }
 
-        window.toggleMenu = function () {
-          const menu = document.getElementById("side-menu");
-          menu.style.left = (menu.style.left === "0px") ? (window.innerWidth <= 768 ? "-100%" : "-220px") : "0px";
-        };
+    function logout() {
+      localStorage.removeItem('jokedropUser');
+      window.location.href = 'index.html';
+    }
 
-        const user = localStorage.getItem('jokedropUser');
-        if (user) {
-          document.getElementById('logout-link')?.style?.display = 'block';
-          document.getElementById('login-link')?.style?.display = 'none';
-          document.getElementById('register-link')?.style?.display = 'none';
+    document.addEventListener("DOMContentLoaded", () => {
+      const user = localStorage.getItem('jokedropUser');
+      if (user) {
+        document.getElementById('logout-link').style.display = 'block';
+        document.getElementById('login-link').style.display = 'none';
+        document.getElementById('register-link').style.display = 'none';
+      }
 
-          const welcomeMsg = document.createElement('p');
-          welcomeMsg.textContent = `Welcome, ${user}!`;
-          welcomeMsg.style.fontWeight = 'bold';
-          welcomeMsg.style.color = 'lightgreen';
-          document.body.prepend(welcomeMsg);
+      const micBtn = document.getElementById("mic-button");
+      const jokeBox = document.getElementById("joke");
+
+      micBtn.addEventListener("click", async () => {
+        jokeBox.textContent = "Loading a joke...";
+        try {
+          const res = await fetch("https://icanhazdadjoke.com/", {
+            headers: { "Accept": "application/json" }
+          });
+          const data = await res.json();
+          jokeBox.textContent = data.joke;
+        } catch (err) {
+          jokeBox.textContent = "Oops! Couldn't load a joke.";
         }
       });
-
-    async function getJoke() {
-      const jokeBox = document.getElementById('joke');
-      jokeBox.textContent = "Loading a joke...";
-
-      try {
-        const res = await fetch('https://icanhazdadjoke.com/', {
-          headers: { 'Accept': 'application/json' }
-        });
-        const data = await res.json();
-        jokeBox.textContent = data.joke;
-      } catch (err) {
-        jokeBox.textContent = "Oops! No joke right now.";
-        console.error(err);
-      }
-    }
+    });
   </script>
 </body>
 </html>
