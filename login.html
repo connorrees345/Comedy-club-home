@@ -21,19 +21,16 @@
   <p id="response"></p>
 
   <script>
-    // Load menu and apply session logic
     fetch('/menu.html')
       .then(res => res.text())
       .then(data => {
         document.getElementById('menu-container').innerHTML = data;
 
-        // Toggle function
         window.toggleMenu = function () {
           const menu = document.getElementById("side-menu");
           menu.style.left = (menu.style.left === "0px") ? "-220px" : "0px";
         };
 
-        // Hide login/register if logged in
         const user = localStorage.getItem('jokedropUser');
         if (user) {
           document.getElementById('logout-link')?.style?.display = 'block';
@@ -42,7 +39,6 @@
         }
       });
 
-    // Handle login form
     document.getElementById("loginForm").addEventListener("submit", async function(e) {
       e.preventDefault();
 
@@ -64,7 +60,7 @@
         const result = await response.json();
 
         if (result.success) {
-          localStorage.setItem('jokedropUser', email); // Save session
+          localStorage.setItem('jokedropUser', email);
           responseBox.style.color = 'lightgreen';
           responseBox.textContent = "✅ Login successful!";
           setTimeout(() => location.href = 'index.html', 1000);
