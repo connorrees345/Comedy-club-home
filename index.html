@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <title>Comedy Club Jokes</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Google Font: Fredoka -->
   <link href="https://fonts.googleapis.com/css2?family=Fredoka&display=swap" rel="stylesheet">
   <style>
     body {
@@ -60,9 +59,53 @@
     #mic-button img:hover {
       transform: scale(1.1);
     }
+
+    /* Slide-out menu styles */
+    #menu-button {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      font-size: 2em;
+      cursor: pointer;
+      z-index: 1001;
+      color: white;
+      text-shadow: 1px 1px 3px black;
+    }
+
+    #side-menu {
+      position: fixed;
+      top: 0;
+      left: -220px;
+      width: 200px;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.9);
+      display: flex;
+      flex-direction: column;
+      padding-top: 60px;
+      transition: left 0.3s ease;
+      z-index: 1000;
+    }
+
+    #side-menu a {
+      color: white;
+      text-decoration: none;
+      padding: 15px 20px;
+      font-size: 1.2em;
+    }
+
+    #side-menu a:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
   </style>
 </head>
 <body>
+  <!-- Slide-out menu trigger + panel -->
+  <div id="menu-button" onclick="toggleMenu()">☰</div>
+  <div id="side-menu">
+    <a href="index.html">Home</a>
+    <a href="submit.html">Submit a Joke</a>
+  </div>
+
   <h1>Welcome to the Comedy Club!</h1>
   <p>Tap the mic to hear a joke</p>
 
@@ -72,20 +115,12 @@
 
   <div id="joke">Waiting for your first laugh...</div>
 
-<a href="submit.html">
-  <button style="
-    margin-top: 20px;
-    padding: 12px 25px;
-    font-size: 1em;
-    border: none;
-    border-radius: 5px;
-    background-color: #28a745;
-    color: white;
-    cursor: pointer;
-  ">Submit a Joke</button>
-</a>
-  
   <script>
+    function toggleMenu() {
+      const menu = document.getElementById("side-menu");
+      menu.style.left = (menu.style.left === "0px") ? "-220px" : "0px";
+    }
+
     async function getJoke() {
       const jokeBox = document.getElementById('joke');
       jokeBox.textContent = "Loading a joke...";
