@@ -8,15 +8,26 @@
 </div>
 
 <script>
+  function toggleMenu() {
+    const menu = document.getElementById("side-menu");
+    menu.style.left = (menu.style.left === "0px") ? "-220px" : "0px";
+  }
+
   function logout() {
     localStorage.removeItem('jokedropUser');
     window.location.href = 'index.html';
   }
 
-  const user = localStorage.getItem('jokedropUser');
-  if (user) {
-    document.getElementById('logout-link').style.display = 'block';
-    document.getElementById('login-link').style.display = 'none';
-    document.getElementById('register-link').style.display = 'none';
-  }
+  document.addEventListener("DOMContentLoaded", () => {
+    const user = localStorage.getItem('jokedropUser');
+    if (user) {
+      const logoutLink = document.getElementById('logout-link');
+      const loginLink = document.getElementById('login-link');
+      const registerLink = document.getElementById('register-link');
+
+      if (logoutLink) logoutLink.style.display = 'block';
+      if (loginLink) loginLink.style.display = 'none';
+      if (registerLink) registerLink.style.display = 'none';
+    }
+  });
 </script>
