@@ -65,27 +65,27 @@
     document.getElementById("jokeForm").addEventListener("submit", async function (e) {
       e.preventDefault();
 
-      const name = document.getElementById("userEmail").value;
+      const email = document.getElementById("userEmail").value;
       const joke = document.getElementById("joke").value;
       const responseBox = document.getElementById("response");
 
       responseBox.textContent = "Submitting your joke...";
 
       try {
-        const response = await fetch("https://formspree.io/f/YOUR-FORM-ID", {
+        const response = await fetch("https://jokedrop-auth.connorrees345.repl.co/submit", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, joke })
+          body: JSON.stringify({ email, joke })
         });
 
         const result = await response.json();
         responseBox.style.color = result.success ? "lightgreen" : "salmon";
         responseBox.textContent = result.success
           ? "✅ Thanks! Your joke was submitted for review."
-          : "❌ Error submitting your joke.";
+          : "❌ Error: " + result.error;
       } catch (error) {
         responseBox.style.color = "salmon";
-        responseBox.textContent = "❌ Submission failed. Try again later.";
+        responseBox.textContent = "❌ Failed to connect to server.";
       }
     });
   </script>
