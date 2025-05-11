@@ -38,6 +38,18 @@
 
   <p id="profileStatus"></p>
 
+  <h2>Change Password</h2>
+  <form id="passwordForm">
+    <label>Current Password:</label><br>
+    <input type="password" id="currentPassword" required><br><br>
+
+    <label>New Password:</label><br>
+    <input type="password" id="newPassword" required><br><br>
+
+    <button type="submit">Change Password</button>
+  </form>
+  <p id="passwordStatus"></p>
+
   <script>
     function toggleMenu() {
       const menu = document.getElementById("side-menu");
@@ -95,6 +107,27 @@
           document.getElementById("profileStatus").textContent = result.success ? "✅ Profile updated!" : "❌ Update failed.";
         } catch (error) {
           document.getElementById("profileStatus").textContent = "❌ Server error.";
+        }
+      });
+
+      document.getElementById("passwordForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const currentPassword = document.getElementById("currentPassword").value;
+        const newPassword = document.getElementById("newPassword").value;
+        const passwordStatus = document.getElementById("passwordStatus");
+
+        try {
+          const res = await fetch("https://jokedrop-auth.connorrees345.repl.co/change-password", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, currentPassword, newPassword })
+          });
+          const data = await res.json();
+          passwordStatus.textContent = data.success ? "✅ Password changed!" : `❌ ${data.error || "Update failed"}`;
+          passwordStatus.style.color = data.success ? "lightgreen" : "salmon";
+        } catch (err) {
+          passwordStatus.textContent = "❌ Server error";
+          passwordStatus.style.color = "salmon";
         }
       });
     });
