@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -35,6 +35,12 @@
           document.getElementById('logout-link')?.style?.display = 'block';
           document.getElementById('login-link')?.style?.display = 'none';
           document.getElementById('register-link')?.style?.display = 'none';
+
+          const welcomeMsg = document.createElement('p');
+          welcomeMsg.textContent = `Welcome, ${user}!`;
+          welcomeMsg.style.fontWeight = 'bold';
+          welcomeMsg.style.color = 'lightgreen';
+          document.body.prepend(welcomeMsg);
         }
       });
 
