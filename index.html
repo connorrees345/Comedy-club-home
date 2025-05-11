@@ -5,7 +5,82 @@
   <title>Comedy Club Jokes</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Fredoka&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Fredoka', sans-serif;
+      background-image: url('https://i.imgur.com/3CoyDMW_d.webp');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      color: white;
+      text-align: center;
+      padding: 20px;
+      text-shadow: 1px 1px 2px black;
+    }
+
+    #menu-button {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      font-size: 2em;
+      cursor: pointer;
+      z-index: 1001;
+      color: white;
+      text-shadow: 1px 1px 3px black;
+    }
+
+    #side-menu {
+      position: fixed;
+      top: 0;
+      left: -220px;
+      width: 200px;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.9);
+      display: flex;
+      flex-direction: column;
+      padding-top: 60px;
+      transition: left 0.3s ease;
+      z-index: 1000;
+    }
+
+    #side-menu a {
+      color: white;
+      text-decoration: none;
+      padding: 15px 20px;
+      font-size: 1.2em;
+    }
+
+    #side-menu a:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    #joke {
+      font-size: 1.3em;
+      max-width: 600px;
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 15px 20px;
+      border-radius: 10px;
+      margin-top: 20px;
+    }
+
+    #mic-button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      outline: none;
+    }
+
+    #mic-button img {
+      width: 100px;
+      height: auto;
+      transition: transform 0.2s;
+    }
+
+    #mic-button img:hover {
+      transform: scale(1.1);
+    }
+  </style>
 </head>
 <body>
   <div id="menu-button" onclick="toggleMenu()">☰</div>
@@ -41,6 +116,7 @@
         jokeBox.textContent = data.joke;
       } catch (err) {
         jokeBox.textContent = "Oops! No joke right now.";
+        console.error(err);
       }
     }
   </script>
