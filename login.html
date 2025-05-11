@@ -12,29 +12,48 @@
   <div id="side-menu">
     <a href="index.html">Home</a>
     <a href="submit.html">Submit a Joke</a>
-    <a href="dashboard.html">Dashboard</a>
+    <a href="register.html">Register</a>
   </div>
 
   <h1>Login to Joke Drop</h1>
-  <p><a href="/.auth/login">Click here to log in with Replit</a></p>
+
+  <form id="loginForm">
+    <input type="email" id="email" placeholder="Email" required><br><br>
+    <input type="password" id="password" placeholder="Password" required><br><br>
+    <button type="submit">Login</button>
+  </form>
+
+  <p id="loginStatus"></p>
 
   <script>
     function toggleMenu() {
       const menu = document.getElementById("side-menu");
-      const isOpen = menu.style.left === "0px";
-      menu.style.left = isOpen ? (window.innerWidth <= 768 ? "-100%" : "-220px") : "0px";
+      menu.style.left = menu.style.left === "0px" ? "-220px" : "0px";
     }
 
-    // Auto-redirect if already logged in
-    document.addEventListener("DOMContentLoaded", async () => {
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const status = document.getElementById("loginStatus");
+
       try {
-        const res = await fetch("/me");
-        const user = await res.json();
-        if (user?.id) {
-          window.location.href = "dashboard.html";
+        const res = await fetch("https://jokedrop-auth.connorrees345.repl.co/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          localStorage.setItem("jokedropUser", email);
+          status.textContent = "✅ Login successful! Redirecting...";
+          setTimeout(() => window.location.href = "dashboard.html", 1000);
+        } else {
+          status.textContent = "❌ " + (data.error || "Login failed.");
         }
       } catch (err) {
-        console.warn("Auth check failed");
+        status.textContent = "❌ Server error.";
       }
     });
   </script>
