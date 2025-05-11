@@ -53,7 +53,7 @@
         const result = await response.json();
 
         if (result.success) {
-          localStorage.setItem('jokedropUser', email); // ✅ Save session
+          localStorage.setItem('jokedropUser', email);
           responseBox.style.color = 'lightgreen';
           responseBox.textContent = "✅ Login successful!";
           setTimeout(() => location.href = 'index.html', 1000);
@@ -66,6 +66,15 @@
         responseBox.textContent = "❌ Failed to connect to server.";
       }
     });
+
+    const user = localStorage.getItem('jokedropUser');
+    if (user) {
+      const welcomeMsg = document.createElement('p');
+      welcomeMsg.textContent = `Welcome, ${user}!`;
+      welcomeMsg.style.fontWeight = 'bold';
+      welcomeMsg.style.color = 'lightgreen';
+      document.body.prepend(welcomeMsg);
+    }
   </script>
 </body>
 </html>
