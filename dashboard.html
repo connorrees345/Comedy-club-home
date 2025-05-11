@@ -2,13 +2,72 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Your Profile - Joke Drop</title>
+  <title>Dashboard - Joke Drop</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link href="https://fonts.googleapis.com/css2?family=Fredoka&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
+  <style>
+    .dashboard {
+      max-width: 700px;
+      margin: auto;
+      padding: 20px;
+      background-color: rgba(0,0,0,0.6);
+      border-radius: 20px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    }
+    .dashboard h2 {
+      margin-top: 0;
+      font-size: 1.8em;
+      border-bottom: 1px solid #fff2;
+      padding-bottom: 10px;
+    }
+    .profile-pic {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid white;
+      margin-bottom: 10px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+      text-align: left;
+    }
+    .form-group label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 5px;
+    }
+    .form-group input[type="text"],
+    .form-group input[type="email"],
+    .form-group input[type="password"],
+    .form-group input[type="date"],
+    .form-group input[type="file"] {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      font-size: 1em;
+    }
+    .form-group input[type="checkbox"] {
+      margin-right: 8px;
+    }
+    .form-actions {
+      text-align: center;
+      margin-top: 20px;
+    }
+    .form-actions button {
+      background-color: #28a745;
+      color: white;
+      padding: 10px 20px;
+      font-size: 1em;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
-  <!-- Slide-Out Menu -->
   <div id="menu-button" onclick="toggleMenu()">☰</div>
   <div id="side-menu">
     <a href="index.html">Home</a>
@@ -16,36 +75,50 @@
     <a href="#" onclick="logout()">Logout</a>
   </div>
 
-  <h1>Your Profile</h1>
-  <form id="profileForm">
-    <label>Name:</label><br>
-    <input type="text" id="name" /><br>
-    <input type="checkbox" id="publicName" /> Show name publicly<br><br>
+  <div class="dashboard">
+    <h2>Your Profile</h2>
+    <div class="form-group" style="text-align:center">
+      <img id="profilePreview" class="profile-pic" src="" alt="Profile Picture">
+      <input type="file" id="profilePicInput" accept="image/*">
+    </div>
+    <form id="profileForm">
+      <div class="form-group">
+        <label>Name</label>
+        <input type="text" id="name" />
+        <label><input type="checkbox" id="publicName"> Show publicly</label>
+      </div>
+      <div class="form-group">
+        <label>Location</label>
+        <input type="text" id="location" />
+        <label><input type="checkbox" id="publicLocation"> Show publicly</label>
+      </div>
+      <div class="form-group">
+        <label>Date of Birth</label>
+        <input type="date" id="dob" />
+        <label><input type="checkbox" id="publicDOB"> Show publicly</label>
+      </div>
+      <div class="form-actions">
+        <button type="submit">Save Profile</button>
+      </div>
+    </form>
+    <p id="profileStatus"></p>
 
-    <label>Location:</label><br>
-    <input type="text" id="location" /><br>
-    <input type="checkbox" id="publicLocation" /> Show location publicly<br><br>
-
-    <label>Date of Birth:</label><br>
-    <input type="date" id="dob" /><br>
-    <input type="checkbox" id="publicDOB" /> Show DOB publicly<br><br>
-
-    <button type="submit">Save Profile</button>
-  </form>
-
-  <p id="profileStatus"></p>
-
-  <h2>Change Password</h2>
-  <form id="passwordForm">
-    <label>Current Password:</label><br>
-    <input type="password" id="currentPassword" required><br><br>
-
-    <label>New Password:</label><br>
-    <input type="password" id="newPassword" required><br><br>
-
-    <button type="submit">Change Password</button>
-  </form>
-  <p id="passwordStatus"></p>
+    <h2>Change Password</h2>
+    <form id="passwordForm">
+      <div class="form-group">
+        <label>Current Password</label>
+        <input type="password" id="currentPassword" required>
+      </div>
+      <div class="form-group">
+        <label>New Password</label>
+        <input type="password" id="newPassword" required>
+      </div>
+      <div class="form-actions">
+        <button type="submit">Change Password</button>
+      </div>
+    </form>
+    <p id="passwordStatus"></p>
+  </div>
 
   <script>
     function toggleMenu() {
@@ -59,10 +132,22 @@
       window.location.href = "index.html";
     }
 
-    document.addEventListener("DOMContentLoaded", async () => {
-      const email = localStorage.getItem("jokedropUser");
-      if (!email) return (window.location.href = "login.html");
+    const email = localStorage.getItem("jokedropUser");
+    if (!email) window.location.href = "login.html";
 
+    const profilePicInput = document.getElementById("profilePicInput");
+    const profilePreview = document.getElementById("profilePreview");
+
+    profilePicInput.addEventListener("change", () => {
+      const file = profilePicInput.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = () => profilePreview.src = reader.result;
+        reader.readAsDataURL(file);
+      }
+    });
+
+    async function loadProfile() {
       try {
         const res = await fetch(`https://jokedrop-auth.connorrees345.repl.co/profile?email=${encodeURIComponent(email)}`);
         const data = await res.json();
@@ -73,58 +158,58 @@
           document.getElementById("publicName").checked = data.privacy?.name ?? true;
           document.getElementById("publicLocation").checked = data.privacy?.location ?? true;
           document.getElementById("publicDOB").checked = data.privacy?.dob ?? false;
-        } else {
-          document.getElementById("profileStatus").textContent = "❌ Failed to load profile.";
+          if (data.profilePicture) profilePreview.src = data.profilePicture;
         }
       } catch (err) {
         document.getElementById("profileStatus").textContent = "❌ Error loading profile.";
       }
+    }
 
-      document.getElementById("profileForm").addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const name = document.getElementById("name").value;
-        const location = document.getElementById("location").value;
-        const dob = document.getElementById("dob").value;
-        const privacy = {
-          name: document.getElementById("publicName").checked,
-          location: document.getElementById("publicLocation").checked,
-          dob: document.getElementById("publicDOB").checked
-        };
+    document.getElementById("profileForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const name = document.getElementById("name").value;
+      const location = document.getElementById("location").value;
+      const dob = document.getElementById("dob").value;
+      const profilePicture = profilePreview.src;
+      const privacy = {
+        name: document.getElementById("publicName").checked,
+        location: document.getElementById("publicLocation").checked,
+        dob: document.getElementById("publicDOB").checked
+      };
 
-        try {
-          const res = await fetch("https://jokedrop-auth.connorrees345.repl.co/profile", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, name, location, dob, privacy })
-          });
-          const result = await res.json();
-          document.getElementById("profileStatus").textContent = result.success ? "✅ Profile updated!" : "❌ Update failed.";
-        } catch (error) {
-          document.getElementById("profileStatus").textContent = "❌ Server error.";
-        }
-      });
-
-      document.getElementById("passwordForm").addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const currentPassword = document.getElementById("currentPassword").value;
-        const newPassword = document.getElementById("newPassword").value;
-        const passwordStatus = document.getElementById("passwordStatus");
-
-        try {
-          const res = await fetch("https://jokedrop-auth.connorrees345.repl.co/change-password", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, currentPassword, newPassword })
-          });
-          const data = await res.json();
-          passwordStatus.textContent = data.success ? "✅ Password changed!" : `❌ ${data.error || "Update failed"}`;
-          passwordStatus.style.color = data.success ? "lightgreen" : "salmon";
-        } catch (err) {
-          passwordStatus.textContent = "❌ Server error";
-          passwordStatus.style.color = "salmon";
-        }
-      });
+      try {
+        const res = await fetch("https://jokedrop-auth.connorrees345.repl.co/profile", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, name, location, dob, profilePicture, privacy })
+        });
+        const result = await res.json();
+        document.getElementById("profileStatus").textContent = result.success ? "✅ Profile updated!" : "❌ Update failed.";
+      } catch (error) {
+        document.getElementById("profileStatus").textContent = "❌ Server error.";
+      }
     });
+
+    document.getElementById("passwordForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const currentPassword = document.getElementById("currentPassword").value;
+      const newPassword = document.getElementById("newPassword").value;
+      const passwordStatus = document.getElementById("passwordStatus");
+
+      try {
+        const res = await fetch("https://jokedrop-auth.connorrees345.repl.co/change-password", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, currentPassword, newPassword })
+        });
+        const data = await res.json();
+        passwordStatus.textContent = data.success ? "✅ Password changed!" : `❌ ${data.error || "Update failed"}`;
+      } catch (err) {
+        passwordStatus.textContent = "❌ Server error";
+      }
+    });
+
+    loadProfile();
   </script>
 </body>
 </html>
