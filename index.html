@@ -28,9 +28,14 @@
 
   <div id="joke">Waiting for your first laugh...</div>
 
+  <!-- JavaScript at the bottom so everything is loaded -->
   <script>
     function toggleMenu() {
       const menu = document.getElementById("side-menu");
+      if (!menu) {
+        console.error("Menu element not found.");
+        return;
+      }
       menu.style.left = (menu.style.left === "0px") ? "-220px" : "0px";
     }
 
@@ -39,18 +44,20 @@
       window.location.href = 'index.html';
     }
 
-    const user = localStorage.getItem('jokedropUser');
-    if (user) {
-      document.getElementById('logout-link')?.style?.display = 'block';
-      document.getElementById('login-link')?.style?.display = 'none';
-      document.getElementById('register-link')?.style?.display = 'none';
+    document.addEventListener('DOMContentLoaded', () => {
+      const user = localStorage.getItem('jokedropUser');
+      if (user) {
+        document.getElementById('logout-link')?.style?.display = 'block';
+        document.getElementById('login-link')?.style?.display = 'none';
+        document.getElementById('register-link')?.style?.display = 'none';
 
-      const welcomeMsg = document.createElement('p');
-      welcomeMsg.textContent = `Welcome, ${user}!`;
-      welcomeMsg.style.fontWeight = 'bold';
-      welcomeMsg.style.color = 'lightgreen';
-      document.body.prepend(welcomeMsg);
-    }
+        const welcomeMsg = document.createElement('p');
+        welcomeMsg.textContent = `Welcome, ${user}!`;
+        welcomeMsg.style.fontWeight = 'bold';
+        welcomeMsg.style.color = 'lightgreen';
+        document.body.prepend(welcomeMsg);
+      }
+    });
 
     async function getJoke() {
       const jokeBox = document.getElementById('joke');
