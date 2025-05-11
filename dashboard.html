@@ -60,7 +60,7 @@
       welcome.innerHTML = `<p style="font-weight: bold; color: lightgreen;">Logged in as ${email}</p>`;
 
       try {
-        const response = await fetch(`https://your-replit-URL/jokes?email=${email}`);
+        const response = await fetch(`https://3f7f43a7-6dfa-457c-84bd-ca9befdce176-00-236zgy6mc61y9.spock.replit.dev//jokes?email=${email}`);
         const data = await response.json();
 
         if (data.success) {
