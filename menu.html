@@ -10,4 +10,16 @@
     const menu = document.getElementById("side-menu");
     menu.style.left = (menu.style.left === "0px") ? "-220px" : "0px";
   }
+  <!-- Add this script block at the bottom of any page to show the logged-in user -->
+<script>
+  const user = localStorage.getItem('jokedropUser');
+  if (user) {
+    const welcomeMsg = document.createElement('p');
+    welcomeMsg.textContent = `Welcome, ${user}!`;
+    welcomeMsg.style.fontWeight = 'bold';
+    welcomeMsg.style.color = 'lightgreen';
+    document.body.prepend(welcomeMsg); // Add to top of page
+  }
+</script>
+
 </script>
