@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Submit a Joke - Joke Drop</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <!-- Embedded Menu Bar -->
+  <!-- Embedded Menu -->
   <div id="menu-button" onclick="toggleMenu()">☰</div>
   <div id="side-menu">
     <a href="index.html">Home</a>
@@ -22,41 +22,41 @@
   <h1>Submit a Joke</h1>
 
   <form id="jokeForm">
-    <input type="text" id="name" placeholder="Your name" required><br><br>
-    <textarea id="joke" placeholder="Write your joke here..." rows="5" cols="40" required></textarea><br><br>
+    <input type="text" id="name" placeholder="Your name" required /><br><br>
+    <textarea id="joke" placeholder="Write your joke here..." rows="5" required></textarea><br><br>
     <button type="submit">Send Joke</button>
   </form>
 
   <p id="response"></p>
 
   <script>
-    // Menu logic
     function toggleMenu() {
       const menu = document.getElementById("side-menu");
-      menu.style.left = (menu.style.left === "0px") ? "-220px" : "0px";
+      menu.style.left = menu.style.left === "0px" ? "-220px" : "0px";
     }
 
     function logout() {
-      localStorage.removeItem('jokedropUser');
-      window.location.href = 'index.html';
+      localStorage.removeItem("jokedropUser");
+      window.location.href = "index.html";
     }
 
-    const user = localStorage.getItem('jokedropUser');
-    if (user) {
-      document.getElementById('logout-link')?.style?.display = 'block';
-      document.getElementById('login-link')?.style?.display = 'none';
-      document.getElementById('register-link')?.style?.display = 'none';
-    } else {
-      document.getElementById('jokeForm').style.display = 'none';
-      const responseBox = document.getElementById('response');
-      responseBox.innerHTML = `
-        <strong>You must be logged in to submit a joke.</strong><br><br>
-        <a href="login.html"><button>Login</button></a>
-        <a href="register.html"><button>Create Account</button></a>
-      `;
-    }
+    document.addEventListener("DOMContentLoaded", () => {
+      const user = localStorage.getItem("jokedropUser");
+      if (user) {
+        document.getElementById("logout-link").style.display = "block";
+        document.getElementById("login-link").style.display = "none";
+        document.getElementById("register-link").style.display = "none";
+      } else {
+        document.getElementById("jokeForm").style.display = "none";
+        document.getElementById("response").innerHTML = `
+          <strong>You must be logged in to submit a joke.</strong><br><br>
+          <a href="login.html"><button>Login</button></a>
+          <a href="register.html"><button>Create Account</button></a>
+        `;
+      }
+    });
 
-    document.getElementById("jokeForm").addEventListener("submit", async function(e) {
+    document.getElementById("jokeForm").addEventListener("submit", async function (e) {
       e.preventDefault();
 
       const name = document.getElementById("name").value;
@@ -73,15 +73,13 @@
         });
 
         const result = await response.json();
-        const message = result.success
-          ? "✅ Thanks! Your joke was submitted for review."
-          : "❌ Error: " + (result.error || "Please try again.");
-
         responseBox.style.color = result.success ? "lightgreen" : "salmon";
-        responseBox.innerHTML = message;
+        responseBox.textContent = result.success
+          ? "✅ Thanks! Your joke was submitted for review."
+          : "❌ Error submitting your joke.";
       } catch (error) {
         responseBox.style.color = "salmon";
-        responseBox.textContent = "❌ Submission failed. Please try again.";
+        responseBox.textContent = "❌ Submission failed. Try again later.";
       }
     });
   </script>
