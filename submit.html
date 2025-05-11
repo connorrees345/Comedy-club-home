@@ -22,17 +22,15 @@
 
   <script>
     fetch('/menu.html')
-  .then(res => res.text())
-  .then(data => {
-    document.getElementById('menu-container').innerHTML = data;
+      .then(res => res.text())
+      .then(data => {
+        document.getElementById('menu-container').innerHTML = data;
 
-    // Manually reattach toggleMenu function after injecting menu
-    window.toggleMenu = function () {
-      const menu = document.getElementById("side-menu");
-      menu.style.left = (menu.style.left === "0px") ? "-220px" : "0px";
-    };
-  });
-
+        window.toggleMenu = function () {
+          const menu = document.getElementById("side-menu");
+          menu.style.left = (menu.style.left === "0px") ? "-220px" : "0px";
+        };
+      });
 
     document.getElementById("jokeForm").addEventListener("submit", async function(e) {
       e.preventDefault();
@@ -52,6 +50,15 @@
         : `Error: ${result.error}`;
       document.getElementById("response").innerHTML = message;
     });
+
+    const user = localStorage.getItem('jokedropUser');
+    if (user) {
+      const welcomeMsg = document.createElement('p');
+      welcomeMsg.textContent = `Welcome, ${user}!`;
+      welcomeMsg.style.fontWeight = 'bold';
+      welcomeMsg.style.color = 'lightgreen';
+      document.body.prepend(welcomeMsg);
+    }
   </script>
 </body>
 </html>
