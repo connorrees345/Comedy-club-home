@@ -53,7 +53,8 @@ body {
   background-color: rgba(0, 0, 0, 0.6);
   padding: 15px 20px;
   border-radius: 10px;
-  margin-top: 20px;
+  margin: 20px auto 0 auto; /* <-- centers it horizontally */
+  box-sizing: border-box;
 }
 
 #mic-button {
