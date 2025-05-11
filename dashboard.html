@@ -13,10 +13,8 @@
   <div id="side-menu">
     <a href="index.html">Home</a>
     <a href="submit.html">Submit a Joke</a>
-    <a href="dashboard.html" id="dashboard-link" style="display: none;">Dashboard</a>
-    <a href="register.html" id="register-link">Register</a>
-    <a href="login.html" id="login-link">Login</a>
-    <a href="#" onclick="logout()" id="logout-link" style="display: none;">Logout</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="/.auth/logout">Logout</a>
   </div>
 
   <h1>Your Profile</h1>
@@ -38,18 +36,6 @@
 
   <p id="profileStatus"></p>
 
-  <h2>Change Password</h2>
-  <form id="passwordForm">
-    <label>Current Password:</label><br>
-    <input type="password" id="currentPassword" required><br><br>
-
-    <label>New Password:</label><br>
-    <input type="password" id="newPassword" required><br><br>
-
-    <button type="submit">Change Password</button>
-  </form>
-  <p id="passwordStatus"></p>
-
   <script>
     function toggleMenu() {
       const menu = document.getElementById("side-menu");
@@ -57,22 +43,22 @@
       menu.style.left = isOpen ? (window.innerWidth <= 768 ? "-100%" : "-220px") : "0px";
     }
 
-    function logout() {
-      localStorage.removeItem("jokedropUser");
-      window.location.href = "index.html";
-    }
-
     document.addEventListener("DOMContentLoaded", async () => {
-      const email = localStorage.getItem("jokedropUser");
-      if (!email) return (window.location.href = "login.html");
-
-      document.getElementById("logout-link").style.display = "block";
-      document.getElementById("login-link").style.display = "none";
-      document.getElementById("register-link").style.display = "none";
-      document.getElementById("dashboard-link").style.display = "block";
+      let user;
+      try {
+        const res = await fetch("/me");
+        user = await res.json();
+        if (!user || !user.id) {
+          document.body.innerHTML = '<h2>Please <a href="/.auth/login">log in</a> to view your dashboard.</h2>';
+          return;
+        }
+      } catch (err) {
+        document.body.innerHTML = '<h2>Error checking login. Please try again later.</h2>';
+        return;
+      }
 
       try {
-        const res = await fetch(`https://jokedrop-auth.connorrees345.repl.co/profile?email=${encodeURIComponent(email)}`);
+        const res = await fetch("/profile");
         const data = await res.json();
         if (data.success) {
           document.getElementById("name").value = data.name || "";
@@ -83,7 +69,7 @@
           document.getElementById("publicDOB").checked = data.privacy?.dob ?? false;
         }
       } catch (err) {
-        document.getElementById("profileStatus").textContent = "❌ Failed to load profile";
+        document.getElementById("profileStatus").textContent = "❌ Failed to load profile.";
       }
 
       document.getElementById("profileForm").addEventListener("submit", async (e) => {
@@ -98,36 +84,15 @@
         };
 
         try {
-          const res = await fetch("https://jokedrop-auth.connorrees345.repl.co/profile", {
+          const res = await fetch("/profile", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, name, location, dob, privacy })
+            body: JSON.stringify({ name, location, dob, privacy })
           });
           const result = await res.json();
           document.getElementById("profileStatus").textContent = result.success ? "✅ Profile updated!" : "❌ Update failed.";
         } catch (error) {
           document.getElementById("profileStatus").textContent = "❌ Server error.";
-        }
-      });
-
-      document.getElementById("passwordForm").addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const currentPassword = document.getElementById("currentPassword").value;
-        const newPassword = document.getElementById("newPassword").value;
-        const passwordStatus = document.getElementById("passwordStatus");
-
-        try {
-          const res = await fetch("https://jokedrop-auth.connorrees345.repl.co/change-password", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, currentPassword, newPassword })
-          });
-          const data = await res.json();
-          passwordStatus.textContent = data.success ? "✅ Password changed!" : `❌ ${data.error || "Update failed"}`;
-          passwordStatus.style.color = data.success ? "lightgreen" : "salmon";
-        } catch (err) {
-          passwordStatus.textContent = "❌ Server error";
-          passwordStatus.style.color = "salmon";
         }
       });
     });
