@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Submit a Joke</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f5f5f5;
+      padding: 50px;
+      text-align: center;
+    }
+    h1 {
+      color: #333;
+    }
+    input, textarea {
+      width: 80%;
+      max-width: 400px;
+      padding: 10px;
+      margin: 10px 0;
+      font-size: 1em;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 1em;
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+    #response {
+      margin-top: 20px;
+      font-size: 1.1em;
+      color: #28a745;
+    }
+  </style>
+</head>
+<body>
+  <h1>Submit a Joke</h1>
+  <form id="jokeForm">
+    <input type="text" id="name" placeholder="Your name" required><br>
+    <textarea id="joke" placeholder="Type your joke here..." rows="5" required></textarea><br>
+    <button type="submit">Send Joke</button>
+  </form>
+
+  <p id="response"></p>
+
+  <script>
+    const form = document.getElementById('jokeForm');
+    const responseEl = document.getElementById('response');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('name').value;
+      const joke = document.getElementById('joke').value;
+
+      responseEl.textContent = 'Sending joke...';
+
+      try {
+        const res = await fetch('https://f657d9ad-31eb-4276-b388-8e306b9f152d-00-1qyjgzqqat80l.worf.replit.dev/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, joke })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          responseEl.innerHTML = `Thanks! Your joke was submitted: <a href="${data.url}" target="_blank">View on GitHub</a>`;
+          form.reset();
+        } else {
+          responseEl.textContent = `Error: ${data.error}`;
+        }
+      } catch (err) {
+        responseEl.textContent = `Something went wrong: ${err.message}`;
+      }
+    });
+  </script>
+</body>
+</html>
