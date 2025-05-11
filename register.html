@@ -21,7 +21,6 @@
   <p id="response"></p>
 
   <script>
-    // Load menu and session-aware links
     fetch('/menu.html')
       .then(res => res.text())
       .then(data => {
@@ -40,7 +39,6 @@
         }
       });
 
-    // Handle form submission
     document.getElementById("registerForm").addEventListener("submit", async function(e) {
       e.preventDefault();
 
