@@ -26,13 +26,11 @@
   <p id="response"></p>
 
   <script>
-    // Slide-out menu toggle
     function toggleMenu() {
       const menu = document.getElementById("side-menu");
       menu.style.left = (menu.style.left === "0px") ? "-220px" : "0px";
     }
 
-    // Joke submission logic
     document.getElementById("jokeForm").addEventListener("submit", async function(e) {
       e.preventDefault();
       const name = document.getElementById("name").value;
