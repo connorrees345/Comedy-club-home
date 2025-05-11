@@ -59,6 +59,16 @@
       } catch (error) {
         responseBox.style.color = 'salmon';
         responseBox.textContent = "❌ Failed to connect to server.";
+
+        <script>
+  // Load shared menu
+  fetch('menu.html')
+    .then(res => res.text())
+    .then(data => {
+      document.getElementById('menu-container').innerHTML = data;
+    });
+</script>
+
       }
     });
   </script>
