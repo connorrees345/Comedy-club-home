@@ -8,10 +8,9 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Slide-out menu -->
   <div id="menu-container"></div>
 
-  <h1>Welcome to the Joke Drop!</h1>
+  <h1>Welcome to Joke Drop!</h1>
   <p>Tap the mic to hear a joke</p>
 
   <button id="mic-button" onclick="getJoke()">
@@ -21,10 +20,11 @@
   <div id="joke">Waiting for your first laugh...</div>
 
   <script>
-    function toggleMenu() {
-      const menu = document.getElementById("side-menu");
-      menu.style.left = (menu.style.left === "0px") ? "-220px" : "0px";
-    }
+    fetch('menu.html')
+      .then(res => res.text())
+      .then(data => {
+        document.getElementById('menu-container').innerHTML = data;
+      });
 
     async function getJoke() {
       const jokeBox = document.getElementById('joke');
@@ -39,18 +39,9 @@
       } catch (err) {
         jokeBox.textContent = "Oops! No joke right now.";
         console.error(err);
-
-        <script>
-  // Load shared menu
-  fetch('menu.html')
-    .then(res => res.text())
-    .then(data => {
-      document.getElementById('menu-container').innerHTML = data;
-    });
-</script>
-
       }
     }
   </script>
 </body>
 </html>
+
