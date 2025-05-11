@@ -39,6 +39,16 @@
       } catch (err) {
         jokeBox.textContent = "Oops! No joke right now.";
         console.error(err);
+
+        <script>
+  // Load shared menu
+  fetch('menu.html')
+    .then(res => res.text())
+    .then(data => {
+      document.getElementById('menu-container').innerHTML = data;
+    });
+</script>
+
       }
     }
   </script>
