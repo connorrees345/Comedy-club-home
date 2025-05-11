@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -29,6 +29,13 @@
           const menu = document.getElementById("side-menu");
           menu.style.left = (menu.style.left === "0px") ? "-220px" : "0px";
         };
+
+        const user = localStorage.getItem('jokedropUser');
+        if (user) {
+          document.getElementById('logout-link')?.style?.display = 'block';
+          document.getElementById('login-link')?.style?.display = 'none';
+          document.getElementById('register-link')?.style?.display = 'none';
+        }
       });
 
     async function getJoke() {
@@ -45,15 +52,6 @@
         jokeBox.textContent = "Oops! No joke right now.";
         console.error(err);
       }
-    }
-
-    const user = localStorage.getItem('jokedropUser');
-    if (user) {
-      const welcomeMsg = document.createElement('p');
-      welcomeMsg.textContent = `Welcome, ${user}!`;
-      welcomeMsg.style.fontWeight = 'bold';
-      welcomeMsg.style.color = 'lightgreen';
-      document.body.prepend(welcomeMsg);
     }
   </script>
 </body>
