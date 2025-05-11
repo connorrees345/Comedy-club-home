@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Comedy Club Jokes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Google Font: Fredoka -->
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Fredoka', sans-serif;
+      background-image: url('https://i.imgur.com/3CoyDMW_d.webp');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      color: white;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      padding: 20px;
+      text-shadow: 1px 1px 2px black;
+    }
+
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+    }
+
+    p {
+      font-size: 1.2em;
+      margin-bottom: 20px;
+    }
+
+    #joke {
+      font-size: 1.3em;
+      max-width: 600px;
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 15px 20px;
+      border-radius: 10px;
+      margin-top: 20px;
+    }
+
+    #mic-button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      outline: none;
+    }
+
+    #mic-button img {
+      width: 100px;
+      height: auto;
+      transition: transform 0.2s;
+    }
+
+    #mic-button img:hover {
+      transform: scale(1.1);
+    }
+  </style>
+</head>
+<body>
+  <h1>Welcome to the Comedy Club!</h1>
+  <p>Tap the mic to hear a joke</p>
+
+  <button id="mic-button" onclick="getJoke()">
+    <img src="https://i.imgur.com/QLAfA42.png" alt="Microphone">
+  </button>
+
+  <div id="joke">Waiting for your first laugh...</div>
+
+  <script>
+    async function getJoke() {
+      const jokeBox = document.getElementById('joke');
+      jokeBox.textContent = "Loading a joke...";
+
+      try {
+        const res = await fetch('https://icanhazdadjoke.com/', {
+          headers: { 'Accept': 'application/json' }
+        });
+        const data = await res.json();
+        jokeBox.textContent = data.joke;
+      } catch (err) {
+        jokeBox.textContent = "Oops! No joke right now.";
+        console.error(err);
+      }
+    }
+  </script>
+</body>
+</html>
