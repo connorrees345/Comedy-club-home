@@ -21,17 +21,28 @@
   <p id="response"></p>
 
   <script>
+    // Load menu and apply session logic
     fetch('/menu.html')
       .then(res => res.text())
       .then(data => {
         document.getElementById('menu-container').innerHTML = data;
 
+        // Toggle function
         window.toggleMenu = function () {
           const menu = document.getElementById("side-menu");
           menu.style.left = (menu.style.left === "0px") ? "-220px" : "0px";
         };
+
+        // Hide login/register if logged in
+        const user = localStorage.getItem('jokedropUser');
+        if (user) {
+          document.getElementById('logout-link')?.style?.display = 'block';
+          document.getElementById('login-link')?.style?.display = 'none';
+          document.getElementById('register-link')?.style?.display = 'none';
+        }
       });
 
+    // Handle login form
     document.getElementById("loginForm").addEventListener("submit", async function(e) {
       e.preventDefault();
 
@@ -53,7 +64,7 @@
         const result = await response.json();
 
         if (result.success) {
-          localStorage.setItem('jokedropUser', email);
+          localStorage.setItem('jokedropUser', email); // Save session
           responseBox.style.color = 'lightgreen';
           responseBox.textContent = "✅ Login successful!";
           setTimeout(() => location.href = 'index.html', 1000);
@@ -66,15 +77,6 @@
         responseBox.textContent = "❌ Failed to connect to server.";
       }
     });
-
-    const user = localStorage.getItem('jokedropUser');
-    if (user) {
-      const welcomeMsg = document.createElement('p');
-      welcomeMsg.textContent = `Welcome, ${user}!`;
-      welcomeMsg.style.fontWeight = 'bold';
-      welcomeMsg.style.color = 'lightgreen';
-      document.body.prepend(welcomeMsg);
-    }
   </script>
 </body>
 </html>
