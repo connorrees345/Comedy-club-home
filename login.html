@@ -9,7 +9,7 @@
 </head>
 <body>
 
-  <!-- Embedded Menu -->
+  <!-- Slide-Out Menu -->
   <div id="menu-button" onclick="toggleMenu()">☰</div>
   <div id="side-menu">
     <a href="index.html">Home</a>
@@ -32,7 +32,8 @@
   <script>
     function toggleMenu() {
       const menu = document.getElementById("side-menu");
-      menu.style.left = menu.style.left === "0px" ? "-220px" : "0px";
+      const isOpen = menu.style.left === "0px";
+      menu.style.left = isOpen ? (window.innerWidth <= 768 ? "-100%" : "-220px") : "0px";
     }
 
     function logout() {
