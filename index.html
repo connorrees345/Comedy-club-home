@@ -47,7 +47,18 @@
         jokeBox.textContent = "Oops! No joke right now.";
         console.error(err);
       }
-    }
+    }<!-- Add this script block at the bottom of any page to show the logged-in user -->
+<script>
+  const user = localStorage.getItem('jokedropUser');
+  if (user) {
+    const welcomeMsg = document.createElement('p');
+    welcomeMsg.textContent = `Welcome, ${user}!`;
+    welcomeMsg.style.fontWeight = 'bold';
+    welcomeMsg.style.color = 'lightgreen';
+    document.body.prepend(welcomeMsg); // Add to top of page
+  }
+</script>
+
   </script>
 </body>
 </html>
