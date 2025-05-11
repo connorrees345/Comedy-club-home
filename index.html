@@ -75,11 +75,9 @@
       micBtn.addEventListener("click", async () => {
         jokeBox.textContent = "Loading a joke...";
         try {
-          const res = await fetch("https://icanhazdadjoke.com/", {
-            headers: { "Accept": "application/json" }
-          });
+          const res = await fetch("https://v2.jokeapi.dev/joke/Any?type=single");
           const data = await res.json();
-          jokeBox.textContent = data.joke;
+          jokeBox.textContent = data.joke || "No joke found!";
         } catch (err) {
           jokeBox.textContent = "Oops! Couldn't load a joke.";
         }
