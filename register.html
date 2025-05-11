@@ -1,65 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Register - Joke Drop</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-  <!-- Slide-Out Menu -->
   <div id="menu-button" onclick="toggleMenu()">☰</div>
   <div id="side-menu">
     <a href="index.html">Home</a>
     <a href="submit.html">Submit a Joke</a>
-    <a href="dashboard.html" id="dashboard-link" style="display: none;">Dashboard</a>
-    <a href="register.html" id="register-link">Register</a>
-    <a href="login.html" id="login-link">Login</a>
-    <a href="#" onclick="logout()" id="logout-link" style="display: none;">Logout</a>
+    <a href="login.html">Login</a>
   </div>
 
-  <h1>Create an Account</h1>
+  <h1>Register for Joke Drop</h1>
 
   <form id="registerForm">
-    <input type="email" id="email" placeholder="Email" required /><br><br>
-    <input type="password" id="password" placeholder="Password" required /><br><br>
+    <input type="email" id="email" placeholder="Email" required><br><br>
+    <input type="password" id="password" placeholder="Password" required><br><br>
     <button type="submit">Register</button>
   </form>
 
-  <p id="response"></p>
+  <p id="registerStatus"></p>
 
   <script>
     function toggleMenu() {
       const menu = document.getElementById("side-menu");
-      const isOpen = menu.style.left === "0px";
-      menu.style.left = isOpen ? (window.innerWidth <= 768 ? "-100%" : "-220px") : "0px";
+      menu.style.left = menu.style.left === "0px" ? "-220px" : "0px";
     }
 
-    function logout() {
-      localStorage.removeItem("jokedropUser");
-      window.location.href = "index.html";
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      const user = localStorage.getItem("jokedropUser");
-      if (user) {
-        document.getElementById("logout-link").style.display = "block";
-        document.getElementById("login-link").style.display = "none";
-        document.getElementById("register-link").style.display = "none";
-        document.getElementById("dashboard-link").style.display = "block";
-      }
-    });
-
-    document.getElementById("registerForm").addEventListener("submit", async function (e) {
+    document.getElementById("registerForm").addEventListener("submit", async (e) => {
       e.preventDefault();
-
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
-      const responseBox = document.getElementById("response");
-
-      responseBox.textContent = "Creating account...";
+      const status = document.getElementById("registerStatus");
 
       try {
         const res = await fetch("https://jokedrop-auth.connorrees345.repl.co/register", {
@@ -68,20 +44,15 @@
           body: JSON.stringify({ email, password })
         });
 
-        const result = await res.json();
-
-        if (result.success) {
-          localStorage.setItem("jokedropUser", email);
-          responseBox.style.color = "lightgreen";
-          responseBox.textContent = "✅ Account created!";
-          setTimeout(() => window.location.href = "index.html", 1000);
+        const data = await res.json();
+        if (data.success) {
+          status.textContent = "✅ Registered successfully! Redirecting to login...";
+          setTimeout(() => window.location.href = "login.html", 1500);
         } else {
-          responseBox.style.color = "salmon";
-          responseBox.textContent = "❌ " + result.error;
+          status.textContent = "❌ " + (data.error || "Registration failed.");
         }
-      } catch (error) {
-        responseBox.style.color = "salmon";
-        responseBox.textContent = "❌ Failed to connect to server.";
+      } catch (err) {
+        status.textContent = "❌ Server error.";
       }
     });
   </script>
