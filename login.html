@@ -14,9 +14,10 @@
   <div id="side-menu">
     <a href="index.html">Home</a>
     <a href="submit.html">Submit a Joke</a>
+    <a href="dashboard.html" id="dashboard-link" style="display: none;">Dashboard</a>
     <a href="register.html" id="register-link">Register</a>
     <a href="login.html" id="login-link">Login</a>
-    <a href="#" onclick="logout()" id="logout-link" style="display:none;">Logout</a>
+    <a href="#" onclick="logout()" id="logout-link" style="display: none;">Logout</a>
   </div>
 
   <h1>Login to Joke Drop</h1>
@@ -47,6 +48,7 @@
         document.getElementById("logout-link").style.display = "block";
         document.getElementById("login-link").style.display = "none";
         document.getElementById("register-link").style.display = "none";
+        document.getElementById("dashboard-link").style.display = "block";
       }
     });
 
