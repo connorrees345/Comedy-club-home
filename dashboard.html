@@ -60,31 +60,33 @@
       welcome.innerHTML = `<p style="font-weight: bold; color: lightgreen;">Logged in as ${email}</p>`;
 
       try {
-        const response = await fetch(`https://jokedrop-auth.connorrees345.repl.co/jokes?email=${email}`);
-        const data = await response.json();
+        const res = await fetch(`https://jokedrop-auth.connorrees345.repl.co/jokes?email=${encodeURIComponent(email)}`);
+        const data = await res.json();
 
-        if (data.success) {
-          const approved = data.jokes.filter(j => j.status === 'approved');
-          const pending = data.jokes.filter(j => j.status === 'pending');
+        if (!data.success) throw new Error(data.error || 'Failed to fetch jokes.');
 
-          approved.forEach(j => {
-            const li = document.createElement('li');
-            li.textContent = j.joke;
-            approvedList.appendChild(li);
-          });
+        const approved = data.jokes.filter(j => j.status === 'approved');
+        const pending = data.jokes.filter(j => j.status === 'pending');
 
-          pending.forEach(j => {
-            const li = document.createElement('li');
-            li.textContent = j.joke;
-            pendingList.appendChild(li);
-          });
-        } else {
-          approvedList.innerHTML = '<li>Error loading jokes</li>';
-          pendingList.innerHTML = '<li>Error loading jokes</li>';
-        }
-      } catch (err) {
-        approvedList.innerHTML = '<li>Server error</li>';
-        pendingList.innerHTML = '<li>Server error</li>';
+        if (approved.length === 0) approvedList.innerHTML = '<li>No approved jokes yet.</li>';
+        if (pending.length === 0) pendingList.innerHTML = '<li>No jokes awaiting review.</li>';
+
+        approved.forEach(j => {
+          const li = document.createElement('li');
+          li.textContent = j.joke;
+          approvedList.appendChild(li);
+        });
+
+        pending.forEach(j => {
+          const li = document.createElement('li');
+          li.textContent = j.joke;
+          pendingList.appendChild(li);
+        });
+
+      } catch (error) {
+        approvedList.innerHTML = '<li style="color: red;">Failed to load jokes.</li>';
+        pendingList.innerHTML = '<li style="color: red;">Failed to load jokes.</li>';
+        console.error(error);
       }
     });
   </script>
