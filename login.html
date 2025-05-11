@@ -1,34 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Login - Joke Drop</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-  <!-- Slide-Out Menu -->
   <div id="menu-button" onclick="toggleMenu()">☰</div>
   <div id="side-menu">
     <a href="index.html">Home</a>
     <a href="submit.html">Submit a Joke</a>
-    <a href="dashboard.html" id="dashboard-link" style="display: none;">Dashboard</a>
-    <a href="register.html" id="register-link">Register</a>
-    <a href="login.html" id="login-link">Login</a>
-    <a href="#" onclick="logout()" id="logout-link" style="display: none;">Logout</a>
+    <a href="dashboard.html">Dashboard</a>
   </div>
 
   <h1>Login to Joke Drop</h1>
-
-  <form id="loginForm">
-    <input type="email" id="email" placeholder="Email" required /><br><br>
-    <input type="password" id="password" placeholder="Password" required /><br><br>
-    <button type="submit">Login</button>
-  </form>
-
-  <p id="response"></p>
+  <p><a href="/.auth/login">Click here to log in with Replit</a></p>
 
   <script>
     function toggleMenu() {
@@ -37,51 +25,16 @@
       menu.style.left = isOpen ? (window.innerWidth <= 768 ? "-100%" : "-220px") : "0px";
     }
 
-    function logout() {
-      localStorage.removeItem("jokedropUser");
-      window.location.href = "index.html";
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      const user = localStorage.getItem("jokedropUser");
-      if (user) {
-        document.getElementById("logout-link").style.display = "block";
-        document.getElementById("login-link").style.display = "none";
-        document.getElementById("register-link").style.display = "none";
-        document.getElementById("dashboard-link").style.display = "block";
-      }
-    });
-
-    document.getElementById("loginForm").addEventListener("submit", async function (e) {
-      e.preventDefault();
-
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-      const responseBox = document.getElementById("response");
-
-      responseBox.textContent = "Logging in...";
-
+    // Auto-redirect if already logged in
+    document.addEventListener("DOMContentLoaded", async () => {
       try {
-        const res = await fetch("https://3f7f43a7-6dfa-457c-84bd-ca9befdce176-00-236zgy6mc61y9.spock.replit.dev/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password })
-        });
-
-        const result = await res.json();
-
-        if (result.success) {
-          localStorage.setItem("jokedropUser", email);
-          responseBox.style.color = "lightgreen";
-          responseBox.textContent = "✅ Login successful!";
-          setTimeout(() => window.location.href = "index.html", 1000);
-        } else {
-          responseBox.style.color = "salmon";
-          responseBox.textContent = "❌ " + result.error;
+        const res = await fetch("/me");
+        const user = await res.json();
+        if (user?.id) {
+          window.location.href = "dashboard.html";
         }
-      } catch (error) {
-        responseBox.style.color = "salmon";
-        responseBox.textContent = "❌ Failed to connect to server.";
+      } catch (err) {
+        console.warn("Auth check failed");
       }
     });
   </script>
