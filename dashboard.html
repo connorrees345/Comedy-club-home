@@ -22,15 +22,22 @@
 
   <h1>Your Joke Dashboard</h1>
 
-  <div id="profile">
+  <section id="profile">
     <h2>Your Profile</h2>
-    <form id="profileForm">
+    <div id="profile-view">
+      <p><strong>Name:</strong> <span id="display-name">Loading...</span></p>
+      <p><strong>Location:</strong> <span id="display-location">Loading...</span></p>
+      <button onclick="toggleProfileEdit()">Edit Profile</button>
+    </div>
+
+    <form id="profileForm" style="display: none;">
       <input type="text" id="name" placeholder="Display Name" /><br><br>
       <input type="text" id="location" placeholder="Location" /><br><br>
       <button type="submit">Save Profile</button>
     </form>
+
     <p id="profileStatus"></p>
-  </div>
+  </section>
 
   <h2>✅ Approved Jokes</h2>
   <ul id="approved-jokes"></ul>
@@ -50,37 +57,39 @@
       window.location.href = "index.html";
     }
 
+    function toggleProfileEdit() {
+      const form = document.getElementById("profileForm");
+      form.style.display = form.style.display === "none" ? "block" : "none";
+    }
+
     document.addEventListener("DOMContentLoaded", async () => {
       const email = localStorage.getItem("jokedropUser");
-      const approvedList = document.getElementById("approved-jokes");
-      const pendingList = document.getElementById("pending-jokes");
-      const profileForm = document.getElementById("profileForm");
-      const profileStatus = document.getElementById("profileStatus");
-
-      if (!email) {
-        window.location.href = "login.html";
-        return;
-      }
+      if (!email) return (window.location.href = "login.html");
 
       document.getElementById("logout-link").style.display = "block";
       document.getElementById("login-link").style.display = "none";
       document.getElementById("register-link").style.display = "none";
       document.getElementById("dashboard-link").style.display = "block";
 
+      const profileStatus = document.getElementById("profileStatus");
+
       // Load profile
       try {
         const res = await fetch(`https://jokedrop-auth.connorrees345.repl.co/profile?email=${encodeURIComponent(email)}`);
         const data = await res.json();
         if (data.success) {
+          document.getElementById("display-name").textContent = data.name || "Not set";
+          document.getElementById("display-location").textContent = data.location || "Not set";
           document.getElementById("name").value = data.name || "";
           document.getElementById("location").value = data.location || "";
         }
       } catch (err) {
-        console.error("Error loading profile:", err);
+        profileStatus.textContent = "❌ Failed to load profile";
+        profileStatus.style.color = "salmon";
       }
 
       // Handle profile form submit
-      profileForm.addEventListener("submit", async (e) => {
+      document.getElementById("profileForm").addEventListener("submit", async (e) => {
         e.preventDefault();
         const name = document.getElementById("name").value;
         const location = document.getElementById("location").value;
@@ -92,10 +101,19 @@
             body: JSON.stringify({ email, name, location })
           });
           const result = await res.json();
-          profileStatus.textContent = result.success ? "✅ Profile saved!" : "❌ Error saving profile.";
-          profileStatus.style.color = result.success ? "lightgreen" : "salmon";
-        } catch (error) {
-          profileStatus.textContent = "❌ Could not connect to server.";
+
+          if (result.success) {
+            document.getElementById("display-name").textContent = name;
+            document.getElementById("display-location").textContent = location;
+            profileStatus.textContent = "✅ Profile updated!";
+            profileStatus.style.color = "lightgreen";
+            toggleProfileEdit();
+          } else {
+            profileStatus.textContent = "❌ Failed to update profile.";
+            profileStatus.style.color = "salmon";
+          }
+        } catch {
+          profileStatus.textContent = "❌ Server error";
           profileStatus.style.color = "salmon";
         }
       });
@@ -104,29 +122,31 @@
       try {
         const res = await fetch(`https://jokedrop-auth.connorrees345.repl.co/jokes?email=${encodeURIComponent(email)}`);
         const data = await res.json();
+        const approvedList = document.getElementById("approved-jokes");
+        const pendingList = document.getElementById("pending-jokes");
 
         if (data.success) {
           const approved = data.jokes.filter(j => j.status === 'approved');
           const pending = data.jokes.filter(j => j.status === 'pending');
 
-          if (approved.length === 0) approvedList.innerHTML = '<li>No approved jokes yet.</li>';
-          if (pending.length === 0) pendingList.innerHTML = '<li>No pending jokes.</li>';
+          approvedList.innerHTML = approved.length ? "" : "<li>No approved jokes yet.</li>";
+          pendingList.innerHTML = pending.length ? "" : "<li>No pending jokes.</li>";
 
           approved.forEach(j => {
-            const li = document.createElement('li');
+            const li = document.createElement("li");
             li.textContent = j.joke;
             approvedList.appendChild(li);
           });
 
           pending.forEach(j => {
-            const li = document.createElement('li');
+            const li = document.createElement("li");
             li.textContent = j.joke;
             pendingList.appendChild(li);
           });
         }
-      } catch (error) {
-        approvedList.innerHTML = '<li style="color:red;">Server error</li>';
-        pendingList.innerHTML = '<li style="color:red;">Server error</li>';
+      } catch {
+        document.getElementById("approved-jokes").innerHTML = "<li>Server error</li>";
+        document.getElementById("pending-jokes").innerHTML = "<li>Server error</li>";
       }
     });
   </script>
