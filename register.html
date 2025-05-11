@@ -25,6 +25,11 @@
       .then(res => res.text())
       .then(data => {
         document.getElementById('menu-container').innerHTML = data;
+
+        window.toggleMenu = function () {
+          const menu = document.getElementById("side-menu");
+          menu.style.left = (menu.style.left === "0px") ? "-220px" : "0px";
+        };
       });
 
     document.getElementById("registerForm").addEventListener("submit", async function(e) {
@@ -59,6 +64,15 @@
         responseBox.textContent = "❌ Failed to connect to server.";
       }
     });
+
+    const user = localStorage.getItem('jokedropUser');
+    if (user) {
+      const welcomeMsg = document.createElement('p');
+      welcomeMsg.textContent = `Welcome, ${user}!`;
+      welcomeMsg.style.fontWeight = 'bold';
+      welcomeMsg.style.color = 'lightgreen';
+      document.body.prepend(welcomeMsg);
+    }
   </script>
 </body>
 </html>
