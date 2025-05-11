@@ -7,6 +7,19 @@
   <meta name="google-adsense-account" content="ca-pub-8362260057219418" />
   <link href="https://fonts.googleapis.com/css2?family=Fredoka&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <style>
+    #signup-promo {
+      max-width: 600px;
+      margin: 20px auto;
+      background-color: rgba(0,0,0,0.6);
+      padding: 15px 20px;
+      border-radius: 12px;
+      font-size: 1.1em;
+      font-weight: bold;
+      color: #ffe87c;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+  </style>
 </head>
 <body>
   <!-- Slide-out menu -->
@@ -22,6 +35,10 @@
 
   <h1>Welcome to Joke Drop!</h1>
   <p>Tap the mic to hear a joke</p>
+
+  <div id="signup-promo" style="display: none;">
+    <p><strong>Got jokes?</strong> Sign up today and drop your own punchlines in the Joke Vault!</p>
+  </div>
 
   <button id="mic-button">
     <img src="https://i.imgur.com/QLAfA42.png" alt="Microphone">
@@ -43,10 +60,13 @@
 
     document.addEventListener("DOMContentLoaded", () => {
       const user = localStorage.getItem('jokedropUser');
+
       if (user) {
         document.getElementById('logout-link').style.display = 'block';
         document.getElementById('login-link').style.display = 'none';
         document.getElementById('register-link').style.display = 'none';
+      } else {
+        document.getElementById('signup-promo').style.display = 'block';
       }
 
       const micBtn = document.getElementById("mic-button");
