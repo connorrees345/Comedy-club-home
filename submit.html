@@ -23,7 +23,7 @@
   <h1>Submit a Joke</h1>
 
   <form id="jokeForm">
-    <input type="text" id="name" placeholder="Your name" required /><br><br>
+    <input type="hidden" id="userEmail" />
     <textarea id="joke" placeholder="Write your joke here..." rows="5" required></textarea><br><br>
     <button type="submit">Send Joke</button>
   </form>
@@ -44,7 +44,10 @@
 
     document.addEventListener("DOMContentLoaded", () => {
       const user = localStorage.getItem("jokedropUser");
+      const emailField = document.getElementById("userEmail");
+
       if (user) {
+        emailField.value = user;
         document.getElementById("logout-link").style.display = "block";
         document.getElementById("login-link").style.display = "none";
         document.getElementById("register-link").style.display = "none";
@@ -62,7 +65,7 @@
     document.getElementById("jokeForm").addEventListener("submit", async function (e) {
       e.preventDefault();
 
-      const name = document.getElementById("name").value;
+      const name = document.getElementById("userEmail").value;
       const joke = document.getElementById("joke").value;
       const responseBox = document.getElementById("response");
 
