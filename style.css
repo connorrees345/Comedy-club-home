@@ -6,28 +6,34 @@ body {
   background-position: center;
   background-repeat: no-repeat;
   color: white;
-  padding: 20px;
+  padding: 40px 20px;
   text-shadow: 1px 1px 2px black;
   line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-h1 {
-  font-size: 2em;
-  margin-bottom: 10px;
+h1, h2 {
+  margin: 20px 0 10px;
+  text-align: center;
 }
 
 form {
-  max-width: 500px;
-  margin: 0 auto;
-  background-color: rgba(0, 0, 0, 0.5);
-  padding: 20px;
-  border-radius: 10px;
+  width: 100%;
+  max-width: 600px;
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 25px;
+  margin-bottom: 30px;
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.5);
 }
 
 label {
   display: block;
   margin-top: 15px;
   font-weight: bold;
+  text-align: left;
 }
 
 input[type="text"],
@@ -40,28 +46,31 @@ input[type="password"] {
   border: none;
   border-radius: 5px;
   font-size: 1em;
+  box-sizing: border-box;
 }
 
 input[type="checkbox"] {
   margin-right: 8px;
+  transform: scale(1.2);
 }
 
 button {
   margin-top: 20px;
-  padding: 10px 20px;
+  padding: 12px 20px;
   font-size: 1em;
   background-color: #28a745;
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  width: 100%;
 }
 
 button:hover {
   background-color: #218838;
 }
 
-#profileStatus {
+#profileStatus, #passwordStatus {
   margin-top: 15px;
   font-weight: bold;
   text-align: center;
@@ -104,8 +113,11 @@ button:hover {
 }
 
 @media screen and (max-width: 600px) {
+  body {
+    padding: 20px 10px;
+  }
   form {
-    padding: 15px;
+    padding: 20px;
   }
   h1 {
     font-size: 1.6em;
