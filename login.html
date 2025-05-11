@@ -21,11 +21,15 @@
   <p id="response"></p>
 
   <script>
-    // Load shared menu from menu.html
     fetch('/menu.html')
       .then(res => res.text())
       .then(data => {
         document.getElementById('menu-container').innerHTML = data;
+
+        window.toggleMenu = function () {
+          const menu = document.getElementById("side-menu");
+          menu.style.left = (menu.style.left === "0px") ? "-220px" : "0px";
+        };
       });
 
     document.getElementById("loginForm").addEventListener("submit", async function(e) {
@@ -49,9 +53,10 @@
         const result = await response.json();
 
         if (result.success) {
+          localStorage.setItem('jokedropUser', email); // ✅ Save session
           responseBox.style.color = 'lightgreen';
           responseBox.textContent = "✅ Login successful!";
-          // In future: save a token or redirect to user dashboard
+          setTimeout(() => location.href = 'index.html', 1000);
         } else {
           responseBox.style.color = 'salmon';
           responseBox.textContent = "❌ " + result.error;
