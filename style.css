@@ -6,74 +6,9 @@ body {
   background-position: center;
   background-repeat: no-repeat;
   color: white;
-  padding: 40px 20px;
+  text-align: center;
+  padding: 20px;
   text-shadow: 1px 1px 2px black;
-  line-height: 1.6;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-h1, h2 {
-  margin: 20px 0 10px;
-  text-align: center;
-}
-
-form {
-  width: 100%;
-  max-width: 600px;
-  background-color: rgba(0, 0, 0, 0.7);
-  padding: 25px;
-  margin-bottom: 30px;
-  border-radius: 12px;
-  box-shadow: 0 0 15px rgba(0,0,0,0.5);
-}
-
-label {
-  display: block;
-  margin-top: 15px;
-  font-weight: bold;
-  text-align: left;
-}
-
-input[type="text"],
-input[type="date"],
-input[type="email"],
-input[type="password"] {
-  width: 100%;
-  padding: 10px;
-  margin-top: 5px;
-  border: none;
-  border-radius: 5px;
-  font-size: 1em;
-  box-sizing: border-box;
-}
-
-input[type="checkbox"] {
-  margin-right: 8px;
-  transform: scale(1.2);
-}
-
-button {
-  margin-top: 20px;
-  padding: 12px 20px;
-  font-size: 1em;
-  background-color: #28a745;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  width: 100%;
-}
-
-button:hover {
-  background-color: #218838;
-}
-
-#profileStatus, #passwordStatus {
-  margin-top: 15px;
-  font-weight: bold;
-  text-align: center;
 }
 
 #menu-button {
@@ -112,14 +47,74 @@ button:hover {
   background-color: rgba(255, 255, 255, 0.1);
 }
 
+#joke {
+  font-size: 1.3em;
+  max-width: 600px;
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 15px 20px;
+  border-radius: 10px;
+  margin-top: 20px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#mic-button {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  outline: none;
+}
+
+#mic-button img {
+  width: 80px;
+  height: auto;
+  display: block;
+  background: transparent;
+}
+
+input, textarea {
+  width: 90%;
+  max-width: 400px;
+  padding: 10px;
+  margin: 10px 0;
+  font-size: 1em;
+  border-radius: 5px;
+  border: none;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 1em;
+  cursor: pointer;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+}
+
+form {
+  margin-bottom: 30px;
+  background-color: rgba(0,0,0,0.6);
+  padding: 20px;
+  border-radius: 12px;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+label {
+  display: block;
+  margin-top: 10px;
+  text-align: left;
+  font-weight: bold;
+}
+
 @media screen and (max-width: 600px) {
   body {
-    padding: 20px 10px;
+    padding: 10px;
   }
-  form {
-    padding: 20px;
-  }
-  h1 {
-    font-size: 1.6em;
+  #mic-button img {
+    width: 60px;
   }
 }
