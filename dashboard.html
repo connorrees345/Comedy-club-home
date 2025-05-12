@@ -24,12 +24,32 @@
       .then(res => res.text())
       .then(html => {
         document.getElementById("menu-container").innerHTML = html;
+
+        const btn = document.getElementById("menu-button");
+        const menu = document.getElementById("side-menu");
+        if (btn && menu) {
+          btn.addEventListener("click", () => {
+            menu.style.left = menu.style.left === "0px" ? "-220px" : "0px";
+          });
+        }
+
+        const email = localStorage.getItem("jokedropUser");
+        if (email) {
+          document.getElementById("logout-link")?.style.setProperty("display", "block");
+          document.getElementById("login-link")?.style.setProperty("display", "none");
+          document.getElementById("register-link")?.style.setProperty("display", "none");
+          document.getElementById("dashboard-link")?.style.setProperty("display", "block");
+        } else {
+          window.location.href = "login.html";
+        }
       });
 
-    const email = localStorage.getItem("jokedropUser");
-    if (!email) {
-      window.location.href = "login.html";
+    function logout() {
+      localStorage.removeItem("jokedropUser");
+      window.location.href = "index.html";
     }
+
+    const email = localStorage.getItem("jokedropUser");
 
     async function loadDashboard() {
       try {
@@ -38,9 +58,9 @@
         if (!profileData.success) throw new Error(profileData.error);
 
         const name = profileData.name || email;
-        document.getElementById("welcome").innerHTML = `<p style="font-weight:bold;">Welcome, ${name}!</p>`;
+        document.getElementById("welcome").innerHTML = `<p style="font-weight:bold; color: lightgreen">Welcome, ${name}!</p>`;
 
-        document.getElementById("profile").innerHTML = `
+        const profileHTML = `
           <div class="dashboard-card">
             <h3>Profile Info</h3>
             <p><strong>Name:</strong> ${profileData.privacy.name ? profileData.name || "(not set)" : "Hidden"}</p>
@@ -48,6 +68,7 @@
             <p><strong>DOB:</strong> ${profileData.privacy.dob ? profileData.dob || "(not set)" : "Hidden"}</p>
           </div>
         `;
+        document.getElementById("profile").innerHTML = profileHTML;
 
         document.getElementById("followCounts").innerHTML = `
           <div class="dashboard-card">
