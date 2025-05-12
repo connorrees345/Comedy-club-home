@@ -6,6 +6,71 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link href="https://fonts.googleapis.com/css2?family=Fredoka&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Fredoka', sans-serif;
+      background-image: url('background.webp');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      color: white;
+      text-align: center;
+      padding: 20px;
+      text-shadow: 1px 1px 2px black;
+    }
+
+    textarea {
+      width: 90%;
+      max-width: 500px;
+      padding: 12px;
+      font-size: 1em;
+      border-radius: 10px;
+      border: none;
+      margin-bottom: 20px;
+    }
+
+    button {
+      padding: 12px 30px;
+      font-size: 1.1em;
+      font-family: 'Fredoka', sans-serif;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+    button:hover {
+      background-color: #218838;
+      transform: scale(1.05);
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    #response {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+
+    .moderator-btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #ff5722;
+      border-radius: 5px;
+      cursor: pointer;
+      color: white;
+      border: none;
+    }
+
+    .moderator-btn:hover {
+      background-color: #e64a19;
+    }
+  </style>
 </head>
 <body>
   <div id="menu-container"></div>
@@ -13,14 +78,14 @@
   <h1>Submit a Joke</h1>
 
   <form id="jokeForm">
-    <textarea id="joke" placeholder="Write your joke here..." rows="5" cols="40" required></textarea><br><br>
-    <button type="submit">Send Joke</button>
+    <textarea id="joke" placeholder="Write your joke here..." rows="5" required></textarea><br>
+    <button type="submit">📨 Submit Joke</button>
   </form>
 
   <p id="response"></p>
 
   <script>
-    // Load menu and apply visibility logic
+    // Load menu.html and set up the sidebar
     fetch("menu.html")
       .then(res => res.text())
       .then(html => {
@@ -28,6 +93,7 @@
 
         const email = localStorage.getItem("jokedropUser");
 
+        // Display logout, dashboard, and admin options for logged-in users
         if (email) {
           document.getElementById("logout-link")?.style.setProperty("display", "block");
           document.getElementById("login-link")?.style.setProperty("display", "none");
@@ -39,6 +105,7 @@
           }
         }
 
+        // Menu button toggle functionality
         const menuButton = document.getElementById("menu-button");
         const sideMenu = document.getElementById("side-menu");
         if (menuButton && sideMenu) {
@@ -48,13 +115,13 @@
         }
       });
 
-    // Prevent access if not logged in
+    // Ensure user is logged in
     const email = localStorage.getItem("jokedropUser");
     if (!email) {
       window.location.href = "login.html";
     }
 
-    // Joke submission
+    // Submit form to backend
     document.getElementById("jokeForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const joke = document.getElementById("joke").value;
