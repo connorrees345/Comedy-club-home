@@ -10,51 +10,48 @@
 <body>
   <div id="menu-container"></div>
 
-  <h1>Welcome to Joke Drop!</h1>
-  <p>Tap the mic to hear a joke</p>
+  <main>
+    <h1>Welcome to Joke Drop!</h1>
+    <p>Tap the mic to hear a joke</p>
 
-  <button id="mic-button" onclick="getJoke()">
-    <img src="https://i.imgur.com/QLAfA42.png" alt="Microphone">
-  </button>
+    <button id="mic-button" onclick="getJoke()">
+      <img src="https://i.imgur.com/QLAfA42.png" alt="Microphone">
+    </button>
 
-  <div id="joke">Waiting for your first laugh...</div>
+    <div id="joke">Waiting for your first laugh...</div>
+  </main>
 
   <script>
-    fetch("./menu.html")
+    fetch('menu.html')
       .then(res => res.text())
       .then(html => {
-        document.getElementById("menu-container").innerHTML = html;
+        document.getElementById('menu-container').innerHTML = html;
 
-        const menuToggle = document.getElementById("menu-button");
-        const menuPanel = document.getElementById("side-menu");
-        if (menuToggle && menuPanel) {
-          menuToggle.addEventListener("click", () => {
-            menuPanel.style.left = menuPanel.style.left === "0px" ? "-220px" : "0px";
-          });
-        }
+        window.toggleMenu = function () {
+          const menu = document.getElementById("side-menu");
+          menu.style.left = (menu.style.left === "0px") ? "-220px" : "0px";
+        };
 
-        const email = localStorage.getItem("jokedropUser");
-        if (email) {
-          document.getElementById("logout-link")?.style.setProperty("display", "block");
-          document.getElementById("login-link")?.style.setProperty("display", "none");
-          document.getElementById("register-link")?.style.setProperty("display", "none");
-          document.getElementById("dashboard-link")?.style.setProperty("display", "block");
-
-          if (email === "admin@joke-drop.com") {
-            document.getElementById("moderator-link")?.style.setProperty("display", "block");
-          }
-        }
+        const user = localStorage.getItem("jokedropUser");
+        document.getElementById("logout-link")?.style?.display = user ? "block" : "none";
+        document.getElementById("login-link")?.style?.display = user ? "none" : "block";
+        document.getElementById("register-link")?.style?.display = user ? "none" : "block";
+        document.getElementById("dashboard-link")?.style?.display = user ? "block" : "none";
+        document.getElementById("moderate-link")?.style?.display = user === "admin@joke-drop.com" ? "block" : "none";
       });
 
-    function getJoke() {
-      const jokeBox = document.getElementById("joke");
-      jokeBox.textContent = "Loading a joke...";
-      fetch("https://icanhazdadjoke.com/", {
-        headers: { Accept: "application/json" }
-      })
-        .then(res => res.json())
-        .then(data => jokeBox.textContent = data.joke)
-        .catch(() => jokeBox.textContent = "Oops! No joke right now.");
+    async function getJoke() {
+      const box = document.getElementById("joke");
+      box.textContent = "Loading a joke...";
+      try {
+        const res = await fetch("https://icanhazdadjoke.com/", {
+          headers: { "Accept": "application/json" }
+        });
+        const data = await res.json();
+        box.textContent = data.joke;
+      } catch (err) {
+        box.textContent = "Oops! No joke right now.";
+      }
     }
   </script>
 </body>
