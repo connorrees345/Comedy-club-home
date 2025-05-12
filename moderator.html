@@ -10,8 +10,8 @@
 <body>
   <div id="menu-container"></div>
 
-  <h1>Pending Joke Submissions</h1>
-  <div id="moderationList"></div>
+  <h1>Moderate Jokes</h1>
+  <div id="moderation-list">Loading jokes...</div>
 
   <script>
     fetch("menu.html")
@@ -19,79 +19,55 @@
       .then(html => {
         document.getElementById("menu-container").innerHTML = html;
 
-        const btn = document.getElementById("menu-button");
-        const menu = document.getElementById("side-menu");
-        if (btn && menu) {
-          btn.addEventListener("click", () => {
-            menu.style.left = menu.style.left === "0px" ? "-220px" : "0px";
-          });
-        }
+        const toggle = document.getElementById("menu-button");
+        const panel = document.getElementById("side-menu");
+        toggle?.addEventListener("click", () => {
+          panel.style.left = panel.style.left === "0px" ? "-220px" : "0px";
+        });
 
         const email = localStorage.getItem("jokedropUser");
-        if (email) {
-          document.getElementById("logout-link")?.style.setProperty("display", "block");
-          document.getElementById("login-link")?.style.setProperty("display", "none");
-          document.getElementById("register-link")?.style.setProperty("display", "none");
-          document.getElementById("dashboard-link")?.style.setProperty("display", "block");
-
-          // Only allow moderator access for specific email
-          if (email !== "admin@joke-drop.com") {
-            document.body.innerHTML = "<h2 style='color: white'>Access Denied</h2>";
-            return;
-          }
-        } else {
-          window.location.href = "login.html";
+        if (email !== "admin@joke-drop.com") {
+          document.body.innerHTML = '<h2 style="color:white;">Access denied. Admins only.</h2>';
+          return;
         }
-
-        loadPendingJokes();
       });
 
-    function logout() {
-      localStorage.removeItem("jokedropUser");
-      window.location.href = "index.html";
+    async function loadJokes() {
+      const res = await fetch("https://jokedrop-backend.onrender.com/moderate");
+      const data = await res.json();
+
+      const container = document.getElementById("moderation-list");
+      if (!data.success || data.jokes.length === 0) {
+        container.innerHTML = "<p>No pending jokes to review.</p>";
+        return;
+      }
+
+      container.innerHTML = data.jokes.map(joke => `
+        <div class="dashboard-card">
+          <p><strong>From:</strong> ${joke.email}</p>
+          <p>${joke.joke}</p>
+          <button onclick="moderate('${joke._id}', 'approved')">✅ Approve</button>
+          <button onclick="moderate('${joke._id}', 'rejected')">❌ Reject</button>
+        </div>
+      `).join("");
     }
 
-    async function loadPendingJokes() {
-      try {
-        const res = await fetch("https://jokedrop-backend.onrender.com/moderate");
-        const data = await res.json();
-
-        if (!data.success) throw new Error("Failed to load jokes");
-
-        const html = data.jokes.map(joke => `
-          <div class="dashboard-card">
-            <p><strong>From:</strong> ${joke.email}</p>
-            <p>${joke.joke}</p>
-            <button onclick="approveJoke('${joke._id}')">Approve</button>
-            <button onclick="rejectJoke('${joke._id}')">Reject</button>
-          </div>
-        `).join("");
-
-        document.getElementById("moderationList").innerHTML = html || "<p>No pending jokes found.</p>";
-
-      } catch (err) {
-        console.error(err);
-        document.getElementById("moderationList").innerHTML = "<p>⚠️ Server error loading jokes.</p>";
+    async function moderate(id, action) {
+      const res = await fetch("https://jokedrop-backend.onrender.com/moderate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, action })
+      });
+      const result = await res.json();
+      if (result.success) {
+        alert(`Joke ${action === 'approved' ? 'approved' : 'rejected'} successfully!`);
+        loadJokes();
+      } else {
+        alert("Error: " + (result.error || "Unknown error"));
       }
     }
 
-    async function approveJoke(id) {
-      await fetch("https://jokedrop-backend.onrender.com/moderate/approve", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id })
-      });
-      loadPendingJokes();
-    }
-
-    async function rejectJoke(id) {
-      await fetch("https://jokedrop-backend.onrender.com/moderate/reject", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id })
-      });
-      loadPendingJokes();
-    }
+    loadJokes();
   </script>
 </body>
 </html>
