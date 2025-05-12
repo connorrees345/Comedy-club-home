@@ -20,15 +20,11 @@
   <div id="joke">Waiting for your first laugh...</div>
 
   <script>
-    async function loadMenuAndStart() {
-      try {
-        const res = await fetch("menu.html");
-        const html = await res.text();
+    fetch("menu.html")
+      .then(res => res.text())
+      .then(html => {
         document.getElementById("menu-container").innerHTML = html;
-      } catch (err) {
-        console.error("Failed to load menu.html", err);
-      }
-    }
+      });
 
     async function getJoke() {
       const jokeBox = document.getElementById("joke");
@@ -45,7 +41,13 @@
       }
     }
 
-    loadMenuAndStart();
+    // Define toggleMenu globally
+    window.toggleMenu = function () {
+      const menu = document.getElementById("side-menu");
+      if (menu) {
+        menu.style.left = (menu.style.left === "0px") ? "-220px" : "0px";
+      }
+    };
   </script>
 </body>
 </html>
