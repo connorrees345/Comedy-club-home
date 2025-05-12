@@ -1,61 +1,34 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Joke Drop</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <div id="menu-container"></div>
+<div id="menu-button" onclick="toggleMenu()">☰</div>
+<div id="side-menu">
+  <a href="index.html">Home</a>
+  <a href="submit.html">Submit a Joke</a>
+  <a href="dashboard.html" id="dashboard-link" style="display:none;">Dashboard</a>
+  <a href="moderate.html" id="moderator-link" style="display:none;">Moderator</a>
+  <a href="register.html" id="register-link">Register</a>
+  <a href="login.html" id="login-link">Login</a>
+  <a href="#" onclick="logout()" id="logout-link" style="display:none;">Logout</a>
+</div>
 
-  <h1>Welcome to Joke Drop!</h1>
-  <p>Tap the mic to hear a joke</p>
+<script>
+  function toggleMenu() {
+    const menu = document.getElementById("side-menu");
+    menu.style.left = menu.style.left === "0px" ? "-220px" : "0px";
+  }
 
-  <button id="mic-button" onclick="getJoke()">
-    <img src="https://i.imgur.com/QLAfA42.png" alt="Microphone">
-  </button>
+  function logout() {
+    localStorage.removeItem("jokedropUser");
+    window.location.href = "index.html";
+  }
 
-  <div id="joke">Waiting for your first laugh...</div>
+  const email = localStorage.getItem("jokedropUser");
+  if (email) {
+    document.getElementById("logout-link")?.style.setProperty("display", "block");
+    document.getElementById("login-link")?.style.setProperty("display", "none");
+    document.getElementById("register-link")?.style.setProperty("display", "none");
+    document.getElementById("dashboard-link")?.style.setProperty("display", "block");
 
-  <script>
-    fetch("menu.html")
-      .then(res => res.text())
-      .then(html => {
-        document.getElementById("menu-container").innerHTML = html;
-
-        const menuToggle = document.getElementById("menu-button");
-        const menuPanel = document.getElementById("side-menu");
-        if (menuToggle && menuPanel) {
-          menuToggle.addEventListener("click", () => {
-            menuPanel.style.left = menuPanel.style.left === "0px" ? "-220px" : "0px";
-          });
-        }
-
-        const email = localStorage.getItem("jokedropUser");
-        if (email) {
-          document.getElementById("logout-link")?.style.setProperty("display", "block");
-          document.getElementById("login-link")?.style.setProperty("display", "none");
-          document.getElementById("register-link")?.style.setProperty("display", "none");
-          document.getElementById("dashboard-link")?.style.setProperty("display", "block");
-
-          if (email === "admin@joke-drop.com") {
-            document.getElementById("moderator-link")?.style.setProperty("display", "block");
-          }
-        }
-      });
-
-    function getJoke() {
-      const jokeBox = document.getElementById("joke");
-      jokeBox.textContent = "Loading a joke...";
-      fetch("https://icanhazdadjoke.com/", {
-        headers: { Accept: "application/json" }
-      })
-        .then(res => res.json())
-        .then(data => jokeBox.textContent = data.joke)
-        .catch(() => jokeBox.textContent = "Oops! No joke right now.");
+    if (email === "admin@joke-drop.com") {
+      document.getElementById("moderator-link")?.style.setProperty("display", "block");
     }
-  </script>
-</body>
-</html>
+  }
+</script>
