@@ -23,13 +23,22 @@
     .dashboard-card p {
       margin: 5px 0;
     }
-    .follow-button {
+    .follow-button, .save-button {
       background-color: #28a745;
       color: white;
       border: none;
       border-radius: 5px;
       padding: 5px 10px;
       cursor: pointer;
+    }
+    .profile-form {
+      display: none;
+      margin-top: 10px;
+    }
+    .profile-form input, .profile-form label {
+      display: block;
+      margin: 5px 0;
+      width: 100%;
     }
   </style>
 </head>
@@ -48,6 +57,7 @@
   <div id="welcome"></div>
   <div id="profile"></div>
   <div id="followCounts"></div>
+  <div id="profileEditor"></div>
   <div id="suggestedUsers"></div>
   <div id="jokeList"></div>
   <h2 style="color:white; margin-top: 40px;">Trending Jokes</h2>
@@ -73,11 +83,14 @@
       document.getElementById("register-link").style.display = "none";
     }
 
+    let profileDataCache = null;
+
     async function loadDashboard() {
       try {
         const profileRes = await fetch(`https://jokedrop-backend.onrender.com/profile?email=${email}`);
         const profileData = await profileRes.json();
         if (!profileData.success) throw new Error(profileData.error);
+        profileDataCache = profileData;
 
         const name = profileData.name || email;
         document.getElementById("welcome").innerHTML = `<p style="font-weight:bold;">Welcome, ${name}!</p>`;
@@ -88,9 +101,26 @@
             <p><strong>Name:</strong> ${profileData.privacy.name ? profileData.name || "(not set)" : "Hidden"}</p>
             <p><strong>Location:</strong> ${profileData.privacy.location ? profileData.location || "(not set)" : "Hidden"}</p>
             <p><strong>DOB:</strong> ${profileData.privacy.dob ? profileData.dob || "(not set)" : "Hidden"}</p>
+            <p><strong>Profile Pic:</strong> ${profileData.profilePicture ? `<img src='${profileData.profilePicture}' width='100'>` : "(not set)"}</p>
+            <button class="follow-button" onclick="toggleProfileForm()">✏️ Edit Profile</button>
           </div>
         `;
         document.getElementById("profile").innerHTML = profileHTML;
+
+        const form = `
+          <div class="dashboard-card profile-form" id="editorForm">
+            <h3>Edit Your Profile</h3>
+            <label>Name: <input type="text" id="edit-name" value="${profileData.name || ''}"></label>
+            <label>Location: <input type="text" id="edit-location" value="${profileData.location || ''}"></label>
+            <label>Date of Birth: <input type="date" id="edit-dob" value="${profileData.dob || ''}"></label>
+            <label>Profile Picture URL: <input type="text" id="edit-pic" value="${profileData.profilePicture || ''}"></label>
+            <label><input type="checkbox" id="pub-name" ${profileData.privacy.name ? 'checked' : ''}> Show Name Publicly</label>
+            <label><input type="checkbox" id="pub-location" ${profileData.privacy.location ? 'checked' : ''}> Show Location Publicly</label>
+            <label><input type="checkbox" id="pub-dob" ${profileData.privacy.dob ? 'checked' : ''}> Show DOB Publicly</label>
+            <button class="save-button" onclick="saveProfile()">Save Changes</button>
+          </div>
+        `;
+        document.getElementById("profileEditor").innerHTML = form;
 
         document.getElementById("followCounts").innerHTML = `
           <div class="dashboard-card">
@@ -143,6 +173,11 @@
       }
     }
 
+    function toggleProfileForm() {
+      const form = document.getElementById("editorForm");
+      form.style.display = form.style.display === "none" ? "block" : "none";
+    }
+
     async function followUser(targetEmail) {
       try {
         const res = await fetch("https://jokedrop-backend.onrender.com/follow", {
@@ -156,6 +191,39 @@
           loadDashboard();
         } else {
           alert("❌ " + (result.error || "Failed to follow user."));
+        }
+      } catch (err) {
+        console.error(err);
+        alert("❌ Server error");
+      }
+    }
+
+    async function saveProfile() {
+      try {
+        const body = {
+          email,
+          name: document.getElementById("edit-name").value,
+          location: document.getElementById("edit-location").value,
+          dob: document.getElementById("edit-dob").value,
+          profilePicture: document.getElementById("edit-pic").value,
+          privacy: {
+            name: document.getElementById("pub-name").checked,
+            location: document.getElementById("pub-location").checked,
+            dob: document.getElementById("pub-dob").checked
+          }
+        };
+
+        const res = await fetch("https://jokedrop-backend.onrender.com/profile/update", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        });
+        const result = await res.json();
+        if (result.success) {
+          alert("✅ Profile updated!");
+          loadDashboard();
+        } else {
+          alert("❌ " + (result.error || "Failed to update profile."));
         }
       } catch (err) {
         console.error(err);
