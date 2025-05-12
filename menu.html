@@ -1,30 +1,38 @@
-<!-- menu.html -->
-<div id="menu-button" onclick="toggleMenu()">☰</div>
+<div id="menu-button">☰</div>
 <div id="side-menu">
   <a href="index.html">Home</a>
   <a href="submit.html">Submit a Joke</a>
-  <a href="dashboard.html" id="dashboard-link" style="display:none;">Dashboard</a>
+  <a href="dashboard.html" id="dashboard-link" style="display: none;">Dashboard</a>
   <a href="register.html" id="register-link">Register</a>
   <a href="login.html" id="login-link">Login</a>
-  <a href="#" onclick="logout()" id="logout-link" style="display:none;">Logout</a>
+  <a href="#" onclick="logout()" id="logout-link" style="display: none;">Logout</a>
+  <a href="moderate.html" id="moderator-link" style="display: none;">Moderator</a>
 </div>
 
 <script>
-  function toggleMenu() {
-    const menu = document.getElementById("side-menu");
-    menu.style.left = menu.style.left === "0px" ? "-220px" : "0px";
-  }
-
   function logout() {
     localStorage.removeItem("jokedropUser");
     window.location.href = "index.html";
   }
 
   const email = localStorage.getItem("jokedropUser");
+
   if (email) {
-    document.getElementById("logout-link").style.display = "block";
-    document.getElementById("login-link").style.display = "none";
-    document.getElementById("register-link").style.display = "none";
-    document.getElementById("dashboard-link").style.display = "block";
+    document.getElementById("logout-link")?.style.setProperty("display", "block");
+    document.getElementById("login-link")?.style.setProperty("display", "none");
+    document.getElementById("register-link")?.style.setProperty("display", "none");
+    document.getElementById("dashboard-link")?.style.setProperty("display", "block");
+
+    if (email === "admin@joke-drop.com") {
+      document.getElementById("moderator-link")?.style.setProperty("display", "block");
+    }
+  }
+
+  const menuToggle = document.getElementById("menu-button");
+  const menuPanel = document.getElementById("side-menu");
+  if (menuToggle && menuPanel) {
+    menuToggle.addEventListener("click", () => {
+      menuPanel.style.left = menuPanel.style.left === "0px" ? "-220px" : "0px";
+    });
   }
 </script>
