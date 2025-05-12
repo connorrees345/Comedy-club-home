@@ -22,15 +22,15 @@
   const user = localStorage.getItem("jokedropUser");
 
   if (user) {
-    document.getElementById("logout-link").style.display = "block";
-    document.getElementById("login-link").style.display = "none";
-    document.getElementById("register-link").style.display = "none";
+    document.getElementById("logout-link")?.style?.display = "block";
+    document.getElementById("login-link")?.style?.display = "none";
+    document.getElementById("register-link")?.style?.display = "none";
 
     if (user === "admin@joke-drop.com") {
       const modLink = document.createElement("a");
       modLink.href = "moderator.html";
       modLink.textContent = "Moderate Jokes";
-      document.getElementById("side-menu").appendChild(modLink);
+      document.getElementById("side-menu")?.appendChild(modLink);
     }
   }
 </script>
