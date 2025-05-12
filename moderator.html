@@ -14,17 +14,38 @@
   <div id="moderationList"></div>
 
   <script>
-    fetch("menu.html")
-      .then(res => res.text())
-      .then(html => {
-        document.getElementById("menu-container").innerHTML = html;
-      });
+    // Define early to prevent button issues
+    window.toggleMenu = function () {
+      const menu = document.getElementById("side-menu");
+      if (menu) {
+        menu.style.left = menu.style.left === "0px" ? "-220px" : "0px";
+      }
+    };
 
-    const email = localStorage.getItem("jokedropUser");
-    if (email !== "admin@joke-drop.com") {
-      document.body.innerHTML = "<p style='color:white;'>❌ Access denied. Moderator only.</p>";
-      throw new Error("Not authorized");
-    }
+    document.addEventListener("DOMContentLoaded", () => {
+      const email = localStorage.getItem("jokedropUser");
+      if (email !== "admin@joke-drop.com") {
+        document.body.innerHTML = "<p style='color:white;'>❌ Access denied. Moderator only.</p>";
+        throw new Error("Not authorized");
+      }
+
+      fetch("menu.html")
+        .then(res => res.text())
+        .then(html => {
+          document.getElementById("menu-container").innerHTML = html;
+
+          if (email) {
+            document.getElementById('logout-link')?.style?.setProperty('display', 'block');
+            document.getElementById('login-link')?.style?.setProperty('display', 'none');
+            document.getElementById('register-link')?.style?.setProperty('display', 'none');
+
+            const dashboardLink = document.querySelector('a[href="dashboard.html"]');
+            if (dashboardLink) dashboardLink.style.display = "inline-block";
+          }
+        });
+
+      loadPendingJokes();
+    });
 
     async function loadPendingJokes() {
       try {
@@ -69,8 +90,6 @@
         alert("❌ Server error.");
       }
     }
-
-    loadPendingJokes();
   </script>
 </body>
 </html>
