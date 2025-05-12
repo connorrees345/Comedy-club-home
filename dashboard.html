@@ -40,6 +40,8 @@
   <div id="welcome"></div>
   <div id="profile"></div>
   <div id="jokeList"></div>
+  <h2 style="color:white; margin-top: 40px;">Trending Jokes</h2>
+  <div id="trendingList"></div>
 
   <script>
     function toggleMenu() {
@@ -92,6 +94,19 @@
         `).join("");
 
         document.getElementById("jokeList").innerHTML = jokesHTML || "<p>You haven't submitted any jokes yet.</p>";
+
+        const trendingRes = await fetch("https://jokedrop-backend.onrender.com/trending");
+        const trendingData = await trendingRes.json();
+        if (trendingData.success) {
+          const trendingHTML = trendingData.jokes.map(j => `
+            <div class="dashboard-card">
+              <h3>🔥 ${j.name}</h3>
+              <p>${j.joke}</p>
+            </div>
+          `).join("");
+          document.getElementById("trendingList").innerHTML = trendingHTML || "<p>No trending jokes yet.</p>";
+        }
+
       } catch (err) {
         console.error(err);
         document.getElementById("jokeList").innerHTML = "<p>⚠️ Failed to load dashboard info.</p>";
