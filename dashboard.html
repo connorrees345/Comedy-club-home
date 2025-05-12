@@ -23,20 +23,24 @@
     .dashboard-card p {
       margin: 5px 0;
     }
-    .follow-button, .save-button {
+    .follow-button, .save-button, .danger-button {
       background-color: #28a745;
       color: white;
       border: none;
       border-radius: 5px;
       padding: 5px 10px;
       cursor: pointer;
+      margin-top: 10px;
+    }
+    .danger-button {
+      background-color: #dc3545;
     }
     .field-label {
       font-weight: bold;
       display: block;
       margin-top: 10px;
     }
-    input[type="text"], input[type="date"], input[type="file"] {
+    input[type="text"], input[type="date"], input[type="file"], input[type="password"] {
       width: 100%;
       padding: 8px;
       margin: 5px 0;
@@ -64,6 +68,7 @@
   <h1>Your Joke Drop Dashboard</h1>
   <div id="welcome"></div>
   <div class="dashboard-card" id="editProfile"></div>
+  <div class="dashboard-card" id="settings"></div>
   <div id="jokeList"></div>
   <h2 style="color:white; margin-top: 40px;">Trending Jokes</h2>
   <div id="trendingList"></div>
@@ -136,6 +141,18 @@
         };
         reader.readAsDataURL(file);
       });
+
+      document.getElementById("settings").innerHTML = `
+        <h3>Settings</h3>
+        <label class="field-label">Current Password:</label>
+        <input type="password" id="currentPassword">
+        <label class="field-label">New Password:</label>
+        <input type="password" id="newPassword">
+        <button class="save-button" onclick="changePassword()">Change Password</button>
+
+        <hr style="margin:20px 0; border-color: #999;">
+        <button class="danger-button" onclick="deleteAccount()">Delete My Account</button>
+      `;
     }
 
     async function saveProfile() {
@@ -161,6 +178,41 @@
       const result = await res.json();
       if (result.success) alert("✅ Profile updated!");
       else alert("❌ Failed to update profile");
+    }
+
+    async function changePassword() {
+      const current = document.getElementById("currentPassword").value;
+      const newPass = document.getElementById("newPassword").value;
+      if (!current || !newPass) return alert("Please fill out both fields");
+
+      const res = await fetch("https://jokedrop-backend.onrender.com/change-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, currentPassword: current, newPassword: newPass })
+      });
+
+      const result = await res.json();
+      if (result.success) alert("✅ Password changed!");
+      else alert("❌ " + (result.error || "Error changing password"));
+    }
+
+    async function deleteAccount() {
+      if (!confirm("Are you sure you want to permanently delete your account?")) return;
+
+      const res = await fetch("https://jokedrop-backend.onrender.com/delete-account", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email })
+      });
+
+      const result = await res.json();
+      if (result.success) {
+        alert("✅ Account deleted");
+        localStorage.removeItem("jokedropUser");
+        window.location.href = "index.html";
+      } else {
+        alert("❌ Failed to delete account");
+      }
     }
 
     loadProfile();
