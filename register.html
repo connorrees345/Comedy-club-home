@@ -6,22 +6,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Fredoka&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
-  <script type="module" src="firebase-config.js"></script>
 </head>
 <body>
-  <!-- Slide-out menu -->
   <div id="menu-button" onclick="toggleMenu()">☰</div>
   <div id="side-menu">
     <a href="index.html">Home</a>
     <a href="submit.html">Submit a Joke</a>
-    <a href="dashboard.html">Dashboard</a>
     <a href="register.html" id="register-link">Register</a>
     <a href="login.html" id="login-link">Login</a>
     <a href="#" onclick="logout()" id="logout-link" style="display:none;">Logout</a>
   </div>
 
-  <h1>Create an Account</h1>
-  <p id="welcome-message"></p>
+  <h1>Create Your Joke Drop Account</h1>
 
   <form id="registerForm">
     <input type="email" id="email" placeholder="Email" required><br><br>
@@ -31,33 +27,23 @@
 
   <p id="registerStatus"></p>
 
-  <script type="module">
-    import {
-      getAuth,
-      signOut,
-      onAuthStateChanged,
-      createUserWithEmailAndPassword
-    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  <script>
+    function toggleMenu() {
+      const menu = document.getElementById("side-menu");
+      menu.style.left = menu.style.left === "0px" ? "-220px" : "0px";
+    }
 
-    const auth = getAuth();
-    const baseUrl = "https://jokedrop-auth.connorrees345.repl.co";
+    function logout() {
+      localStorage.removeItem('jokedropUser');
+      window.location.href = 'index.html';
+    }
 
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        document.getElementById("logout-link").style.display = "block";
-        document.getElementById("login-link").style.display = "none";
-        document.getElementById("register-link").style.display = "none";
-
-        try {
-          const res = await fetch(`${baseUrl}/profile?email=${encodeURIComponent(user.email)}`);
-          const data = await res.json();
-          const displayName = data.name?.trim();
-          document.getElementById("welcome-message").textContent = `Welcome, ${displayName || user.email}`;
-        } catch {
-          document.getElementById("welcome-message").textContent = `Welcome, ${user.email}`;
-        }
-      }
-    });
+    const user = localStorage.getItem("jokedropUser");
+    if (user) {
+      document.getElementById("logout-link").style.display = "block";
+      document.getElementById("login-link").style.display = "none";
+      document.getElementById("register-link").style.display = "none";
+    }
 
     document.getElementById("registerForm").addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -66,27 +52,25 @@
       const status = document.getElementById("registerStatus");
 
       try {
-        await createUserWithEmailAndPassword(auth, email, password);
-        status.textContent = "✅ Account created! Redirecting...";
-        setTimeout(() => window.location.href = "dashboard.html", 1500);
+        const res = await fetch("https://jokedrop-backend.onrender.com/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          localStorage.setItem("jokedropUser", email);
+          status.textContent = "✅ Account created! Redirecting...";
+          setTimeout(() => window.location.href = "dashboard.html", 1200);
+        } else {
+          status.textContent = "❌ " + (data.error || "Registration failed.");
+        }
       } catch (err) {
-        status.textContent = "❌ " + err.message;
+        status.textContent = "❌ Server error. Please try again.";
+        console.error(err);
       }
     });
-
-    window.logout = async function () {
-      await signOut(auth);
-      window.location.href = "index.html";
-    };
-  </script>
-
-  <script>
-    function toggleMenu() {
-      const menu = document.getElementById("side-menu");
-      menu.style.left = menu.style.left === "0px"
-        ? (window.innerWidth <= 768 ? "-100%" : "-220px")
-        : "0px";
-    }
   </script>
 </body>
 </html>
