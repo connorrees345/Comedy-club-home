@@ -2,137 +2,100 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Dashboard - Joke Drop</title>
+  <title>Your Dashboard - Joke Drop</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Fredoka&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
-  <script type="module" src="firebase-config.js"></script>
 </head>
 <body>
-  <!-- Slide-out menu -->
-  <div id="menu-button" onclick="toggleMenu()">☰</div>
-  <div id="side-menu">
-    <a href="index.html">Home</a>
-    <a href="submit.html">Submit a Joke</a>
-    <a href="dashboard.html">Dashboard</a>
-    <a href="register.html" id="register-link">Register</a>
-    <a href="login.html" id="login-link">Login</a>
-    <a href="#" onclick="logout()" id="logout-link" style="display:none;">Logout</a>
-  </div>
+  <div id="menu-container"></div>
 
   <h1>Your Dashboard</h1>
-  <p id="welcome-message"></p>
 
-  <div id="profile-section" style="display:none;">
-    <h2>Profile</h2>
-    <form id="profile-form">
-      <input type="text" id="name" placeholder="Display Name" /><br>
-      <input type="text" id="location" placeholder="Location" /><br>
-      <input type="date" id="dob" placeholder="Date of Birth" /><br>
-      <label><input type="checkbox" id="showName" checked> Show Name Publicly</label><br>
-      <label><input type="checkbox" id="showLocation" checked> Show Location Publicly</label><br>
-      <label><input type="checkbox" id="showDob"> Show DOB Publicly</label><br>
-      <button type="submit">Update Profile</button>
-    </form>
-    <p id="profile-message"></p>
+  <div id="dashboard-content">
+    <section id="profile-box">
+      <img id="profile-pic" src="" alt="Profile Picture" class="avatar" style="display:none">
+      <h2 id="profile-name"></h2>
+      <p id="profile-location"></p>
+      <p id="profile-dob"></p>
+      <button onclick="window.location.href='settings.html'">Edit Profile / Settings</button>
+    </section>
+
+    <section id="your-posts">
+      <h2>Your Jokes</h2>
+      <ul id="jokes-list"></ul>
+    </section>
+
+    <section id="submit-new">
+      <h2>Post a New Joke</h2>
+      <form id="jokeForm">
+        <textarea id="joke" placeholder="Write your joke here..." rows="4" required></textarea><br>
+        <button type="submit">Submit Joke</button>
+      </form>
+    </section>
   </div>
 
-  <div id="joke-history" style="display:none;">
-    <h2>Your Jokes</h2>
-    <ul id="jokes-list"></ul>
-  </div>
+  <script>
+    fetch('menu.html')
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById('menu-container').innerHTML = html;
+        window.toggleMenu = function () {
+          const menu = document.getElementById("side-menu");
+          const isMobile = window.innerWidth <= 768;
+          menu.style.left = menu.style.left === "0px" ? (isMobile ? "-100%" : "-220px") : "0px";
+        };
+      });
 
-  <script type="module">
-    import {
-      onAuthStateChanged,
-      getAuth,
-      signOut
-    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    const email = localStorage.getItem("jokedropUser");
+    if (!email) window.location.href = "login.html";
 
-    const auth = getAuth();
-    const baseUrl = "https://jokedrop-auth.connorrees345.repl.co";
-
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        document.getElementById("logout-link").style.display = "block";
-        document.getElementById("login-link").style.display = "none";
-        document.getElementById("register-link").style.display = "none";
-
-        const displayName = data.name?.trim();
-document.getElementById("welcome-message").textContent = `Welcome, ${displayName ? displayName : user.email}`;
-        document.getElementById("profile-section").style.display = "block";
-        document.getElementById("joke-history").style.display = "block";
-
-        // Fetch profile
-        const res = await fetch(`${baseUrl}/profile?email=${encodeURIComponent(user.email)}`);
-        const data = await res.json();
-        if (data.success) {
-          document.getElementById("name").value = data.name || "";
-          document.getElementById("location").value = data.location || "";
-          document.getElementById("dob").value = data.dob || "";
-          document.getElementById("showName").checked = data.privacy.name;
-          document.getElementById("showLocation").checked = data.privacy.location;
-          document.getElementById("showDob").checked = data.privacy.dob;
+    async function loadProfile() {
+      const res = await fetch(`https://jokedrop-auth.connorrees345.repl.co/profile?email=${email}`);
+      const data = await res.json();
+      if (data.success) {
+        if (data.profilePicture) {
+          document.getElementById("profile-pic").src = data.profilePicture;
+          document.getElementById("profile-pic").style.display = "block";
         }
+        document.getElementById("profile-name").textContent = data.name || email;
+        document.getElementById("profile-location").textContent = data.privacy?.location ? `Location: ${data.location}` : "";
+        document.getElementById("profile-dob").textContent = data.privacy?.dob ? `Date of Birth: ${data.dob}` : "";
+      }
+    }
 
-        // Fetch jokes
-        const jokeRes = await fetch(`${baseUrl}/jokes?email=${encodeURIComponent(user.email)}`);
-        const jokeData = await jokeRes.json();
+    async function loadJokes() {
+      const res = await fetch(`https://jokedrop-auth.connorrees345.repl.co/jokes?email=${email}`);
+      const data = await res.json();
+      if (data.success) {
         const list = document.getElementById("jokes-list");
-        if (jokeData.success) {
-          list.innerHTML = "";
-          jokeData.jokes.forEach(j => {
-            const li = document.createElement("li");
-            li.textContent = `${j.joke} (${j.status})`;
-            list.appendChild(li);
-          });
-        }
-
-        document.getElementById("profile-form").addEventListener("submit", async (e) => {
-          e.preventDefault();
-          const updated = {
-            email: user.email,
-            name: document.getElementById("name").value,
-            location: document.getElementById("location").value,
-            dob: document.getElementById("dob").value,
-            privacy: {
-              name: document.getElementById("showName").checked,
-              location: document.getElementById("showLocation").checked,
-              dob: document.getElementById("showDob").checked
-            }
-          };
-
-          const saveRes = await fetch(`${baseUrl}/profile`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(updated)
-          });
-
-          const result = await saveRes.json();
-          document.getElementById("profile-message").textContent = result.success ? "Profile updated!" : "Error saving profile.";
+        data.jokes.forEach(j => {
+          const li = document.createElement("li");
+          li.textContent = `${j.joke} (${j.status})`;
+          list.appendChild(li);
         });
+      }
+    }
+
+    document.getElementById("jokeForm").addEventListener("submit", async e => {
+      e.preventDefault();
+      const joke = document.getElementById("joke").value;
+      const res = await fetch("https://jokedrop-auth.connorrees345.repl.co/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, joke })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("Joke submitted for review!");
+        location.reload();
       } else {
-        setTimeout(() => {
-          if (!auth.currentUser) {
-            window.location.href = "login.html";
-          }
-        }, 500);
+        alert("Error submitting joke");
       }
     });
 
-    window.logout = async function () {
-      await signOut(auth);
-      window.location.href = "index.html";
-    };
-  </script>
-
-  <script>
-    function toggleMenu() {
-      const menu = document.getElementById("side-menu");
-      menu.style.left = menu.style.left === "0px"
-        ? (window.innerWidth <= 768 ? "-100%" : "-220px")
-        : "0px";
-    }
+    loadProfile();
+    loadJokes();
   </script>
 </body>
 </html>
