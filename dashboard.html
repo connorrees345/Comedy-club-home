@@ -6,147 +6,99 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Fredoka&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <style>
+    .dashboard-card {
+      background-color: rgba(255, 255, 255, 0.1);
+      padding: 15px;
+      border-radius: 10px;
+      margin: 15px auto;
+      max-width: 600px;
+      color: white;
+      text-align: left;
+    }
+    .dashboard-card h3 {
+      margin-top: 0;
+      color: #ffd700;
+    }
+    .dashboard-card p {
+      margin: 5px 0;
+    }
+  </style>
 </head>
 <body>
-  <div id="menu-container"></div>
-
-  <h1>Your Dashboard</h1>
-
-  <div id="dashboard-content">
-    <section id="profile-box">
-      <img id="profile-pic" src="" alt="Profile Picture" class="avatar" style="display:none">
-      <h2 id="profile-name"></h2>
-      <p id="profile-location"></p>
-      <p id="profile-dob"></p>
-      <p id="follower-count">Followers: 0 | Following: 0</p>
-      <button onclick="window.location.href='settings.html'">Edit Profile / Settings</button>
-    </section>
-
-    <section id="your-posts">
-      <h2>Your Jokes</h2>
-      <ul id="jokes-list"></ul>
-    </section>
-
-    <section id="submit-new">
-      <h2>Post a New Joke</h2>
-      <form id="jokeForm">
-        <textarea id="joke" placeholder="Write your joke here..." rows="4" required></textarea><br>
-        <button type="submit">Submit Joke</button>
-      </form>
-    </section>
-
-    <section id="trending">
-      <h2>Trending Jokes</h2>
-      <ul id="trending-list"></ul>
-    </section>
-
-    <section id="follow-users">
-      <h2>People You Might Like</h2>
-      <ul id="user-suggestions"></ul>
-    </section>
+  <div id="menu-button" onclick="toggleMenu()">☰</div>
+  <div id="side-menu">
+    <a href="index.html">Home</a>
+    <a href="submit.html">Submit a Joke</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="register.html" id="register-link">Register</a>
+    <a href="login.html" id="login-link">Login</a>
+    <a href="#" onclick="logout()" id="logout-link" style="display:none;">Logout</a>
   </div>
 
+  <h1>Your Joke Drop Dashboard</h1>
+  <div id="welcome"></div>
+  <div id="profile"></div>
+  <div id="jokeList"></div>
+
   <script>
-    fetch('menu.html')
-      .then(res => res.text())
-      .then(html => {
-        document.getElementById('menu-container').innerHTML = html;
-        window.toggleMenu = function () {
-          const menu = document.getElementById("side-menu");
-          const isMobile = window.innerWidth <= 768;
-          menu.style.left = menu.style.left === "0px" ? (isMobile ? "-100%" : "-220px") : "0px";
-        };
-      });
+    function toggleMenu() {
+      const menu = document.getElementById("side-menu");
+      menu.style.left = menu.style.left === "0px" ? "-220px" : "0px";
+    }
+
+    function logout() {
+      localStorage.removeItem('jokedropUser');
+      window.location.href = 'index.html';
+    }
 
     const email = localStorage.getItem("jokedropUser");
-    if (!email) window.location.href = "login.html";
+    if (!email) {
+      window.location.href = "login.html";
+    } else {
+      document.getElementById("logout-link").style.display = "block";
+      document.getElementById("login-link").style.display = "none";
+      document.getElementById("register-link").style.display = "none";
+    }
 
-    async function loadProfile() {
-      const res = await fetch(`https://jokedrop-auth.connorrees345.repl.co/profile?email=${email}`);
-      const data = await res.json();
-      if (data.success) {
-        if (data.profilePicture) {
-          document.getElementById("profile-pic").src = data.profilePicture;
-          document.getElementById("profile-pic").style.display = "block";
-        }
-        document.getElementById("profile-name").textContent = data.name || email;
-        document.getElementById("profile-location").textContent = data.privacy?.location ? `Location: ${data.location}` : "";
-        document.getElementById("profile-dob").textContent = data.privacy?.dob ? `Date of Birth: ${data.dob}` : "";
-        if (data.followers !== undefined && data.following !== undefined) {
-          document.getElementById("follower-count").textContent = `Followers: ${data.followers.length} | Following: ${data.following.length}`;
-        }
+    async function loadDashboard() {
+      try {
+        const profileRes = await fetch(`https://jokedrop-backend.onrender.com/profile?email=${email}`);
+        const profileData = await profileRes.json();
+        if (!profileData.success) throw new Error(profileData.error);
+
+        const name = profileData.name || email;
+        document.getElementById("welcome").innerHTML = `<p style="font-weight:bold;">Welcome, ${name}!</p>`;
+
+        const profileHTML = `
+          <div class="dashboard-card">
+            <h3>Profile Info</h3>
+            <p><strong>Name:</strong> ${profileData.privacy.name ? profileData.name || "(not set)" : "Hidden"}</p>
+            <p><strong>Location:</strong> ${profileData.privacy.location ? profileData.location || "(not set)" : "Hidden"}</p>
+            <p><strong>DOB:</strong> ${profileData.privacy.dob ? profileData.dob || "(not set)" : "Hidden"}</p>
+          </div>
+        `;
+        document.getElementById("profile").innerHTML = profileHTML;
+
+        const jokeRes = await fetch(`https://jokedrop-backend.onrender.com/jokes?email=${email}`);
+        const jokeData = await jokeRes.json();
+        if (!jokeData.success) throw new Error(jokeData.error);
+
+        const jokesHTML = jokeData.jokes.map(joke => `
+          <div class="dashboard-card">
+            <h3>${joke.status === "approved" ? "✅ Approved" : "⏳ Pending"} Joke</h3>
+            <p>${joke.joke}</p>
+          </div>
+        `).join("");
+
+        document.getElementById("jokeList").innerHTML = jokesHTML || "<p>You haven't submitted any jokes yet.</p>";
+      } catch (err) {
+        console.error(err);
+        document.getElementById("jokeList").innerHTML = "<p>⚠️ Failed to load dashboard info.</p>";
       }
     }
 
-    async function loadJokes() {
-      const res = await fetch(`https://jokedrop-auth.connorrees345.repl.co/jokes?email=${email}`);
-      const data = await res.json();
-      if (data.success) {
-        const list = document.getElementById("jokes-list");
-        data.jokes.forEach(j => {
-          const li = document.createElement("li");
-          li.textContent = `${j.joke} (${j.status})`;
-          list.appendChild(li);
-        });
-      }
-    }
-
-    async function loadTrending() {
-      const res = await fetch(`https://jokedrop-auth.connorrees345.repl.co/trending`);
-      const data = await res.json();
-      if (data.success) {
-        const list = document.getElementById("trending-list");
-        data.jokes.forEach(j => {
-          const li = document.createElement("li");
-          li.textContent = `${j.joke} — by ${j.name || j.email}`;
-          list.appendChild(li);
-        });
-      }
-    }
-
-    async function loadSuggestions() {
-      const res = await fetch(`https://jokedrop-auth.connorrees345.repl.co/users/suggestions?email=${email}`);
-      const data = await res.json();
-      if (data.success) {
-        const list = document.getElementById("user-suggestions");
-        data.users.forEach(user => {
-          const li = document.createElement("li");
-          li.innerHTML = `${user.name || user.email} <button onclick="followUser('${user.email}')">Follow</button>`;
-          list.appendChild(li);
-        });
-      }
-    }
-
-    async function followUser(targetEmail) {
-      await fetch(`https://jokedrop-auth.connorrees345.repl.co/follow`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ follower: email, target: targetEmail })
-      });
-      alert('Followed user!');
-    }
-
-    document.getElementById("jokeForm").addEventListener("submit", async e => {
-      e.preventDefault();
-      const joke = document.getElementById("joke").value;
-      const res = await fetch("https://jokedrop-auth.connorrees345.repl.co/submit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, joke })
-      });
-      const data = await res.json();
-      if (data.success) {
-        alert("Joke submitted for review!");
-        location.reload();
-      } else {
-        alert("Error submitting joke");
-      }
-    });
-
-    loadProfile();
-    loadJokes();
-    loadTrending();
-    loadSuggestions();
+    loadDashboard();
   </script>
 </body>
 </html>
