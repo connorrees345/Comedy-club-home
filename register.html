@@ -21,44 +21,37 @@
   <p id="registerStatus"></p>
 
   <script>
-    // Define toggleMenu early to avoid issues
-    window.toggleMenu = function () {
-      const menu = document.getElementById("side-menu");
-      if (menu) {
-        menu.style.left = menu.style.left === "0px" ? "-220px" : "0px";
-      }
-    };
+    fetch("menu.html")
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById("menu-container").innerHTML = html;
 
-    document.addEventListener("DOMContentLoaded", () => {
-      fetch("menu.html")
-        .then(res => res.text())
-        .then(html => {
-          document.getElementById("menu-container").innerHTML = html;
+        const btn = document.getElementById("menu-button");
+        const menu = document.getElementById("side-menu");
+        if (btn && menu) {
+          btn.addEventListener("click", () => {
+            menu.style.left = menu.style.left === "0px" ? "-220px" : "0px";
+          });
+        }
 
-          const user = localStorage.getItem("jokedropUser");
-          if (user) {
-            document.getElementById('logout-link')?.style?.setProperty('display', 'block');
-            document.getElementById('login-link')?.style?.setProperty('display', 'none');
-            document.getElementById('register-link')?.style?.setProperty('display', 'none');
+        const email = localStorage.getItem("jokedropUser");
+        if (email) {
+          document.getElementById("logout-link")?.style.setProperty("display", "block");
+          document.getElementById("login-link")?.style.setProperty("display", "none");
+          document.getElementById("register-link")?.style.setProperty("display", "none");
+          document.getElementById("dashboard-link")?.style.setProperty("display", "block");
+        }
+      });
 
-            const dashboardLink = document.querySelector('a[href="dashboard.html"]');
-            if (dashboardLink) dashboardLink.style.display = "inline-block";
+    function logout() {
+      localStorage.removeItem("jokedropUser");
+      window.location.href = "index.html";
+    }
 
-            if (user === "admin@joke-drop.com") {
-              const modLink = document.createElement("a");
-              modLink.href = "moderator.html";
-              modLink.textContent = "Moderate Jokes";
-              document.getElementById("side-menu")?.appendChild(modLink);
-            }
-          }
-        });
-    });
-
-    document.getElementById("registerForm").addEventListener("submit", async (e) => {
+    document.getElementById("registerForm").addEventListener("submit", async function(e) {
       e.preventDefault();
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
-      const status = document.getElementById("registerStatus");
 
       try {
         const res = await fetch("https://jokedrop-backend.onrender.com/register", {
@@ -66,17 +59,10 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password })
         });
-
         const data = await res.json();
-        if (data.success) {
-          localStorage.setItem("jokedropUser", email);
-          status.textContent = "✅ Registered! Redirecting...";
-          setTimeout(() => window.location.href = "dashboard.html", 1000);
-        } else {
-          status.textContent = "❌ " + (data.error || "Registration failed.");
-        }
+        document.getElementById("registerStatus").textContent = data.success ? "✅ Registered successfully!" : "❌ " + (data.error || "Failed to register.");
       } catch (err) {
-        status.textContent = "❌ Server error.";
+        document.getElementById("registerStatus").textContent = "❌ Server error.";
       }
     });
   </script>
