@@ -21,15 +21,15 @@
   </div>
 
   <h1>Submit a Joke</h1>
+  <p id="welcome-message"></p>
 
-  <form id="jokeForm">
+  <form id="jokeForm" style="display:none;">
     <textarea id="joke" placeholder="Write your joke here..." rows="5" cols="40" required></textarea><br><br>
     <button type="submit">Send Joke</button>
   </form>
 
   <p id="response"></p>
 
-  <!-- Firebase auth & submission -->
   <script type="module">
     import {
       onAuthStateChanged,
@@ -38,20 +38,23 @@
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
     const auth = getAuth();
+    const baseUrl = "https://jokedrop-auth.connorrees345.repl.co";
 
-    onAuthStateChanged(auth, user => {
-      if (!user) {
-        window.location.href = "login.html";
-      } else {
-        const welcomeMsg = document.createElement("p");
-        welcomeMsg.textContent = `Welcome, ${user.email}!`;
-        welcomeMsg.style.fontWeight = "bold";
-        welcomeMsg.style.color = "lightgreen";
-        document.body.prepend(welcomeMsg);
-
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
         document.getElementById("logout-link").style.display = "block";
         document.getElementById("login-link").style.display = "none";
         document.getElementById("register-link").style.display = "none";
+        document.getElementById("jokeForm").style.display = "block";
+
+        try {
+          const res = await fetch(`${baseUrl}/profile?email=${encodeURIComponent(user.email)}`);
+          const data = await res.json();
+          const displayName = data.name?.trim();
+          document.getElementById("welcome-message").textContent = `Welcome, ${displayName || user.email}`;
+        } catch {
+          document.getElementById("welcome-message").textContent = `Welcome, ${user.email}`;
+        }
 
         document.getElementById("jokeForm").addEventListener("submit", async (e) => {
           e.preventDefault();
@@ -59,15 +62,29 @@
           const responseBox = document.getElementById("response");
 
           try {
-            // Replace this with your actual submission logic if connected to backend
-            console.log(`Submitted by ${user.email}:`, joke);
-            responseBox.textContent = "✅ Joke submitted successfully (pending review).";
-            document.getElementById("joke").value = "";
+            const res = await fetch(`${baseUrl}/submit`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ email: user.email, joke })
+            });
+
+            const result = await res.json();
+            if (result.success) {
+              responseBox.textContent = "✅ Joke submitted successfully (pending review).";
+              document.getElementById("joke").value = "";
+            } else {
+              responseBox.textContent = "❌ Error: " + result.error;
+            }
           } catch (err) {
             responseBox.textContent = "❌ Failed to submit joke.";
-            console.error(err);
           }
         });
+      } else {
+        setTimeout(() => {
+          if (!auth.currentUser) {
+            window.location.href = "login.html";
+          }
+        }, 500);
       }
     });
 
@@ -77,7 +94,6 @@
     };
   </script>
 
-  <!-- Slide menu toggle -->
   <script>
     function toggleMenu() {
       const menu = document.getElementById("side-menu");
