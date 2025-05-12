@@ -25,13 +25,33 @@
       .then(res => res.text())
       .then(html => {
         document.getElementById("menu-container").innerHTML = html;
+
+        const btn = document.getElementById("menu-button");
+        const menu = document.getElementById("side-menu");
+        if (btn && menu) {
+          btn.addEventListener("click", () => {
+            menu.style.left = menu.style.left === "0px" ? "-220px" : "0px";
+          });
+        }
+
+        const email = localStorage.getItem("jokedropUser");
+        if (email) {
+          document.getElementById("logout-link")?.style.setProperty("display", "block");
+          document.getElementById("login-link")?.style.setProperty("display", "none");
+          document.getElementById("register-link")?.style.setProperty("display", "none");
+          document.getElementById("dashboard-link")?.style.setProperty("display", "block");
+        }
       });
 
-    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+    function logout() {
+      localStorage.removeItem("jokedropUser");
+      window.location.href = "index.html";
+    }
+
+    document.getElementById("loginForm").addEventListener("submit", async function(e) {
       e.preventDefault();
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
-      const status = document.getElementById("loginStatus");
 
       try {
         const res = await fetch("https://jokedrop-backend.onrender.com/login", {
@@ -39,18 +59,16 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password })
         });
-
         const data = await res.json();
         if (data.success) {
           localStorage.setItem("jokedropUser", email);
-          status.textContent = "✅ Login successful! Redirecting...";
+          document.getElementById("loginStatus").textContent = "✅ Login successful! Redirecting...";
           setTimeout(() => window.location.href = "dashboard.html", 1000);
         } else {
-          status.textContent = "❌ " + (data.error || "Login failed.");
+          document.getElementById("loginStatus").textContent = "❌ " + (data.error || "Login failed.");
         }
       } catch (err) {
-        status.textContent = "❌ Server error.";
-        console.error(err);
+        document.getElementById("loginStatus").textContent = "❌ Server error.";
       }
     });
   </script>
