@@ -20,11 +20,15 @@
   <div id="joke">Waiting for your first laugh...</div>
 
   <script>
-    fetch("menu.html")
-      .then(res => res.text())
-      .then(html => {
+    async function loadMenuAndStart() {
+      try {
+        const res = await fetch("menu.html");
+        const html = await res.text();
         document.getElementById("menu-container").innerHTML = html;
-      });
+      } catch (err) {
+        console.error("Failed to load menu.html", err);
+      }
+    }
 
     async function getJoke() {
       const jokeBox = document.getElementById("joke");
@@ -40,6 +44,8 @@
         console.error(err);
       }
     }
+
+    loadMenuAndStart();
   </script>
 </body>
 </html>
