@@ -1,1 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Moderate Jokes - Joke Drop</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="menu-button" onclick="toggleMenu()">☰</div>
+  <div id="side-menu">
+    <a href="index.html">Home</a>
+    <a href="submit.html">Submit a Joke</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="#" onclick="logout()" id="logout-link" style="display:none;">Logout</a>
+  </div>
 
+  <h1>Pending Jokes</h1>
+  <div id="pendingList">Loading pending jokes...</div>
+
+  <script>
+    function toggleMenu() {
+      const menu = document.getElementById("side-menu");
+      menu.style.left = menu.style.left === "0px" ? "-220px" : "0px";
+    }
+
+    function logout() {
+      localStorage.removeItem('jokedropUser');
+      window.location.href = 'index.html';
+    }
+
+    const email = localStorage.getItem("jokedropUser");
+
+    if (email !== "admin@joke-drop.com") {
+      window.location.href = "index.html";
+    } else {
+      document.getElementById("logout-link").style.display = "block";
+    }
+
+    async function loadPendingJokes() {
+      try {
+        const res = await fetch("https://jokedrop-backend.onrender.com/moderate?email=" + email);
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error);
+
+        if (data.jokes.length === 0) {
+          document.getElementById("pendingList").innerHTML = "<p>No pending jokes.</p>";
+          return;
+        }
+
+        const html = data.jokes.map(joke => `
+          <div class="dashboard-card">
+            <p><strong>${joke.email}</strong></p>
+            <p>${joke.joke}</p>
+            <button onclick="approveJoke('${joke.id}')">✅ Approve</button>
+            <button onclick="deleteJoke('${joke.id}')">❌ Delete</button>
+          </div>
+        `).join("");
+        document.getElementById("pendingList").innerHTML = html;
+
+      } catch (err) {
+        document.getElementById("pendingList").innerHTML = "Error loading jokes.";
+        console.error(err);
+      }
+    }
+
+    async function approveJoke(id) {
+      await fetch("https://jokedrop-backend.onrender.com/moderate/approve", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, id })
+      });
+      loadPendingJokes();
+    }
+
+    async function deleteJoke(id) {
+      await fetch("https://jokedrop-backend.onrender.com/moderate/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, id })
+      });
+      loadPendingJokes();
+    }
+
+    loadPendingJokes();
+  </script>
+</body>
+</html>
