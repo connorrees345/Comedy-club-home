@@ -25,34 +25,36 @@
       .then(html => {
         document.getElementById("menu-container").innerHTML = html;
 
-        window.toggleMenu = function () {
-          const menu = document.getElementById("side-menu");
-          menu.style.left = menu.style.left === "0px" ? "-220px" : "0px";
-        };
+        const menuToggle = document.getElementById("menu-button");
+        const menuPanel = document.getElementById("side-menu");
+        if (menuToggle && menuPanel) {
+          menuToggle.addEventListener("click", () => {
+            menuPanel.style.left = menuPanel.style.left === "0px" ? "-220px" : "0px";
+          });
+        }
 
         const email = localStorage.getItem("jokedropUser");
         if (email) {
-          document.getElementById("logout-link").style.display = "block";
-          document.getElementById("login-link").style.display = "none";
-          document.getElementById("register-link").style.display = "none";
-          document.getElementById("dashboard-link").style.display = "block";
+          document.getElementById("logout-link")?.style.setProperty("display", "block");
+          document.getElementById("login-link")?.style.setProperty("display", "none");
+          document.getElementById("register-link")?.style.setProperty("display", "none");
+          document.getElementById("dashboard-link")?.style.setProperty("display", "block");
+
+          if (email === "admin@joke-drop.com") {
+            document.getElementById("moderator-link")?.style.setProperty("display", "block");
+          }
         }
       });
 
-    async function getJoke() {
-      const jokeBox = document.getElementById('joke');
+    function getJoke() {
+      const jokeBox = document.getElementById("joke");
       jokeBox.textContent = "Loading a joke...";
-
-      try {
-        const res = await fetch("https://icanhazdadjoke.com/", {
-          headers: { Accept: "application/json" }
-        });
-        const data = await res.json();
-        jokeBox.textContent = data.joke;
-      } catch (err) {
-        jokeBox.textContent = "Oops! No joke right now.";
-        console.error(err);
-      }
+      fetch("https://icanhazdadjoke.com/", {
+        headers: { Accept: "application/json" }
+      })
+        .then(res => res.json())
+        .then(data => jokeBox.textContent = data.joke)
+        .catch(() => jokeBox.textContent = "Oops! No joke right now.");
     }
   </script>
 </body>
