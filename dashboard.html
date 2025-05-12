@@ -58,7 +58,8 @@
         document.getElementById("login-link").style.display = "none";
         document.getElementById("register-link").style.display = "none";
 
-        document.getElementById("welcome-message").textContent = `Welcome, ${user.email}`;
+        const displayName = data.name?.trim();
+document.getElementById("welcome-message").textContent = `Welcome, ${displayName ? displayName : user.email}`;
         document.getElementById("profile-section").style.display = "block";
         document.getElementById("joke-history").style.display = "block";
 
