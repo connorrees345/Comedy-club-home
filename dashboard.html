@@ -1,221 +1,210 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Your Dashboard - Joke Drop</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
-  <style>
-    .dashboard-card {
-      background-color: rgba(255, 255, 255, 0.1);
-      padding: 15px;
-      border-radius: 10px;
-      margin: 15px auto;
-      max-width: 600px;
-      color: white;
-      text-align: left;
-    }
-    .dashboard-card h3 {
-      margin-top: 0;
-      color: #ffd700;
-    }
-    .dashboard-card p {
-      margin: 5px 0;
-    }
-    .follow-button, .save-button, .danger-button {
-      background-color: #28a745;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      padding: 5px 10px;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-    .danger-button {
-      background-color: #dc3545;
-    }
-    .field-label {
-      font-weight: bold;
-      display: block;
-      margin-top: 10px;
-    }
-    input[type="text"], input[type="date"], input[type="file"], input[type="password"] {
-      width: 100%;
-      padding: 8px;
-      margin: 5px 0;
-      border-radius: 5px;
-      border: none;
-    }
-    .privacy-toggle {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 5px;
-    }
-    img.profile-preview {
-      width: 100px;
-      height: 100px;
-      object-fit: cover;
-      border-radius: 50%;
-      margin-top: 10px;
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div id="menu-container"></div>
-
   <h1>Your Joke Drop Dashboard</h1>
   <div id="welcome"></div>
-  <div class="dashboard-card" id="editProfile"></div>
-  <div class="dashboard-card" id="settings"></div>
+
+  <section class="dashboard-card" id="profile"></section>
+  <section class="dashboard-card" id="followCounts"></section>
+  <section id="editProfile" class="dashboard-card">
+    <h3>Edit Profile</h3>
+    <input type="text" id="name" placeholder="Display Name" />
+    <input type="text" id="location" placeholder="Location" />
+    <input type="date" id="dob" placeholder="Date of Birth" />
+    <input type="text" id="profilePicture" placeholder="Profile Picture URL" />
+    <label><input type="checkbox" id="privacyName" /> Show name</label><br>
+    <label><input type="checkbox" id="privacyLocation" /> Show location</label><br>
+    <label><input type="checkbox" id="privacyDob" /> Show date of birth</label><br>
+    <button onclick="saveProfile()">Save Profile</button>
+  </section>
+
+  <section class="dashboard-card" id="passwordChange">
+    <h3>Change Password</h3>
+    <input type="password" id="currentPassword" placeholder="Current Password" />
+    <input type="password" id="newPassword" placeholder="New Password" />
+    <button onclick="changePassword()">Change Password</button>
+  </section>
+
+  <section class="dashboard-card">
+    <button onclick="deleteAccount()" style="background:red; color:white;">Delete Account</button>
+  </section>
+
   <div id="jokeList"></div>
   <h2 style="color:white; margin-top: 40px;">Trending Jokes</h2>
   <div id="trendingList"></div>
+  <h2 style="color:white; margin-top: 40px;">Suggested Users</h2>
+  <div id="suggestedUsers"></div>
 
   <script>
     fetch("menu.html")
       .then(res => res.text())
       .then(html => {
         document.getElementById("menu-container").innerHTML = html;
+
+        const toggle = document.getElementById("menu-button");
+        const menu = document.getElementById("side-menu");
+        toggle?.addEventListener("click", () => {
+          menu.style.left = menu.style.left === "0px" ? "-220px" : "0px";
+        });
+
         const email = localStorage.getItem("jokedropUser");
+        if (!email) return (window.location.href = "login.html");
+
+        document.getElementById("logout-link")?.style.setProperty("display", "block");
+        document.getElementById("login-link")?.style.setProperty("display", "none");
+        document.getElementById("register-link")?.style.setProperty("display", "none");
+        document.getElementById("dashboard-link")?.style.setProperty("display", "block");
+
         if (email === "admin@joke-drop.com") {
           document.getElementById("moderator-link")?.style.setProperty("display", "block");
         }
-        if (email) {
-          document.getElementById("logout-link")?.style.setProperty("display", "block");
-          document.getElementById("login-link")?.style.setProperty("display", "none");
-          document.getElementById("register-link")?.style.setProperty("display", "none");
-          document.getElementById("dashboard-link")?.style.setProperty("display", "block");
+
+        loadDashboard(email);
+      });
+
+    async function loadDashboard(email) {
+      try {
+        const res = await fetch(`https://jokedrop-backend.onrender.com/profile?email=${email}`);
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error);
+
+        document.getElementById("welcome").innerHTML = `<p style="font-weight:bold; color:lightgreen">Welcome, ${data.name || email}!</p>`;
+
+        document.getElementById("profile").innerHTML = `
+          <h3>Profile Info</h3>
+          <p><strong>Name:</strong> ${data.privacy.name ? data.name || "(not set)" : "Hidden"}</p>
+          <p><strong>Location:</strong> ${data.privacy.location ? data.location || "(not set)" : "Hidden"}</p>
+          <p><strong>DOB:</strong> ${data.privacy.dob ? data.dob || "(not set)" : "Hidden"}</p>
+          <p><strong>Profile Pic:</strong> ${data.profilePicture ? `<img src="${data.profilePicture}" alt="Profile" style="width:60px; height:60px; border-radius:50%;">` : "(none)"}</p>
+        `;
+
+        document.getElementById("name").value = data.name || "";
+        document.getElementById("location").value = data.location || "";
+        document.getElementById("dob").value = data.dob || "";
+        document.getElementById("profilePicture").value = data.profilePicture || "";
+        document.getElementById("privacyName").checked = data.privacy.name;
+        document.getElementById("privacyLocation").checked = data.privacy.location;
+        document.getElementById("privacyDob").checked = data.privacy.dob;
+
+        document.getElementById("followCounts").innerHTML = `
+          <h3>Connections</h3>
+          <p><strong>Followers:</strong> ${data.followers?.length || 0}</p>
+          <p><strong>Following:</strong> ${data.following?.length || 0}</p>
+        `;
+
+        const jokes = await fetch(`https://jokedrop-backend.onrender.com/jokes?email=${email}`).then(r => r.json());
+        if (jokes.success) {
+          const jokeHTML = jokes.jokes.map(j => `
+            <div class="dashboard-card">
+              <h3>${j.status === "approved" ? "✅ Approved" : "⏳ Pending"} Joke</h3>
+              <p>${j.joke}</p>
+            </div>
+          `).join("");
+          document.getElementById("jokeList").innerHTML = jokeHTML || "<p>No jokes submitted yet.</p>";
         }
-        document.getElementById("menu-button")?.addEventListener("click", () => {
-          const menu = document.getElementById("side-menu");
-          if (menu) menu.style.left = menu.style.left === "0px" ? "-220px" : "0px";
-        });
-      });
 
-    const email = localStorage.getItem("jokedropUser");
-    if (!email) window.location.href = "login.html";
+        const trending = await fetch("https://jokedrop-backend.onrender.com/trending").then(r => r.json());
+        if (trending.success) {
+          document.getElementById("trendingList").innerHTML = trending.jokes.map(j => `
+            <div class="dashboard-card">
+              <h3>🔥 ${j.name || j.email}</h3>
+              <p>${j.joke}</p>
+            </div>
+          `).join("") || "<p>No trending jokes yet.</p>";
+        }
 
-    async function loadProfile() {
-      const res = await fetch(`https://jokedrop-backend.onrender.com/profile?email=${email}`);
-      const data = await res.json();
-      if (!data.success) return;
-
-      const { name, location, dob, profilePicture, privacy } = data;
-      document.getElementById("welcome").innerHTML = `<p style="font-weight:bold;">Welcome, ${name || email}!</p>`;
-
-      document.getElementById("editProfile").innerHTML = `
-        <h3>Edit Profile</h3>
-        <label class="field-label">Name:</label>
-        <input type="text" id="name" value="${name || ''}">
-        <div class="privacy-toggle">
-          <input type="checkbox" id="privacy-name" ${privacy.name ? 'checked' : ''}> Show name
-        </div>
-
-        <label class="field-label">Location:</label>
-        <input type="text" id="location" value="${location || ''}">
-        <div class="privacy-toggle">
-          <input type="checkbox" id="privacy-location" ${privacy.location ? 'checked' : ''}> Show location
-        </div>
-
-        <label class="field-label">Date of Birth:</label>
-        <input type="date" id="dob" value="${dob || ''}">
-        <div class="privacy-toggle">
-          <input type="checkbox" id="privacy-dob" ${privacy.dob ? 'checked' : ''}> Show DOB
-        </div>
-
-        <label class="field-label">Profile Picture:</label>
-        <input type="file" accept="image/*" id="profilePicInput">
-        <img src="${profilePicture || ''}" id="previewImg" class="profile-preview" style="display:${profilePicture ? 'block' : 'none'};">
-
-        <button class="save-button" onclick="saveProfile()">Save Changes</button>
-      `;
-
-      document.getElementById("profilePicInput").addEventListener("change", (e) => {
-        const file = e.target.files[0];
-        const reader = new FileReader();
-        reader.onload = function(evt) {
-          document.getElementById("previewImg").src = evt.target.result;
-          document.getElementById("previewImg").style.display = "block";
-        };
-        reader.readAsDataURL(file);
-      });
-
-      document.getElementById("settings").innerHTML = `
-        <h3>Settings</h3>
-        <label class="field-label">Current Password:</label>
-        <input type="password" id="currentPassword">
-        <label class="field-label">New Password:</label>
-        <input type="password" id="newPassword">
-        <button class="save-button" onclick="changePassword()">Change Password</button>
-
-        <hr style="margin:20px 0; border-color: #999;">
-        <button class="danger-button" onclick="deleteAccount()">Delete My Account</button>
-      `;
+        const suggestions = await fetch(`https://jokedrop-backend.onrender.com/users/suggestions?email=${email}`).then(r => r.json());
+        if (suggestions.success) {
+          document.getElementById("suggestedUsers").innerHTML = suggestions.users.map(u => `
+            <div class="dashboard-card">
+              <p><strong>${u.name || u.email}</strong></p>
+              <button class="follow-button" onclick="followUser('${u.email}')">Follow</button>
+            </div>
+          `).join("");
+        }
+      } catch (err) {
+        console.error(err);
+        document.getElementById("jokeList").innerHTML = "<p>⚠️ Failed to load dashboard.</p>";
+      }
     }
 
     async function saveProfile() {
-      const payload = {
+      const email = localStorage.getItem("jokedropUser");
+      const body = {
         email,
         name: document.getElementById("name").value,
         location: document.getElementById("location").value,
         dob: document.getElementById("dob").value,
-        profilePicture: document.getElementById("previewImg").src,
+        profilePicture: document.getElementById("profilePicture").value,
         privacy: {
-          name: document.getElementById("privacy-name").checked,
-          location: document.getElementById("privacy-location").checked,
-          dob: document.getElementById("privacy-dob").checked
+          name: document.getElementById("privacyName").checked,
+          location: document.getElementById("privacyLocation").checked,
+          dob: document.getElementById("privacyDob").checked,
         }
       };
-
       const res = await fetch("https://jokedrop-backend.onrender.com/profile", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(body)
       });
-
       const result = await res.json();
-      if (result.success) alert("✅ Profile updated!");
-      else alert("❌ Failed to update profile");
+      if (result.success) {
+        alert("Profile updated!");
+        loadDashboard(email);
+      }
     }
 
     async function changePassword() {
-      const current = document.getElementById("currentPassword").value;
-      const newPass = document.getElementById("newPassword").value;
-      if (!current || !newPass) return alert("Please fill out both fields");
+      const email = localStorage.getItem("jokedropUser");
+      const currentPassword = document.getElementById("currentPassword").value;
+      const newPassword = document.getElementById("newPassword").value;
 
       const res = await fetch("https://jokedrop-backend.onrender.com/change-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, currentPassword: current, newPassword: newPass })
+        body: JSON.stringify({ email, currentPassword, newPassword })
       });
 
       const result = await res.json();
-      if (result.success) alert("✅ Password changed!");
-      else alert("❌ " + (result.error || "Error changing password"));
+      alert(result.success ? "Password changed!" : result.error || "Failed");
     }
 
     async function deleteAccount() {
-      if (!confirm("Are you sure you want to permanently delete your account?")) return;
+      const email = localStorage.getItem("jokedropUser");
+      if (!confirm("Are you sure you want to delete your account?")) return;
 
-      const res = await fetch("https://jokedrop-backend.onrender.com/delete-account", {
+      const res = await fetch("https://jokedrop-backend.onrender.com/delete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email })
       });
-
       const result = await res.json();
       if (result.success) {
-        alert("✅ Account deleted");
+        alert("Account deleted.");
         localStorage.removeItem("jokedropUser");
         window.location.href = "index.html";
-      } else {
-        alert("❌ Failed to delete account");
       }
     }
 
-    loadProfile();
+    async function followUser(target) {
+      const follower = localStorage.getItem("jokedropUser");
+      const res = await fetch("https://jokedrop-backend.onrender.com/follow", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ follower, target })
+      });
+      const result = await res.json();
+      alert(result.success ? "Followed!" : result.error);
+      loadDashboard(follower);
+    }
   </script>
 </body>
 </html>
