@@ -8,79 +8,66 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="menu-button" onclick="toggleMenu()">☰</div>
-  <div id="side-menu">
-    <a href="index.html">Home</a>
-    <a href="submit.html">Submit a Joke</a>
-    <a href="dashboard.html">Dashboard</a>
-    <a href="#" onclick="logout()" id="logout-link" style="display:none;">Logout</a>
-  </div>
+  <div id="menu-container"></div>
 
-  <h1>Pending Jokes</h1>
-  <div id="pendingList">Loading pending jokes...</div>
+  <h1>Moderate Submitted Jokes</h1>
+  <div id="moderationList"></div>
 
   <script>
-    function toggleMenu() {
-      const menu = document.getElementById("side-menu");
-      menu.style.left = menu.style.left === "0px" ? "-220px" : "0px";
-    }
-
-    function logout() {
-      localStorage.removeItem('jokedropUser');
-      window.location.href = 'index.html';
-    }
+    fetch("menu.html")
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById("menu-container").innerHTML = html;
+      });
 
     const email = localStorage.getItem("jokedropUser");
-
     if (email !== "admin@joke-drop.com") {
-      window.location.href = "index.html";
-    } else {
-      document.getElementById("logout-link").style.display = "block";
+      document.body.innerHTML = "<p style='color:white;'>❌ Access denied. Moderator only.</p>";
+      throw new Error("Not authorized");
     }
 
     async function loadPendingJokes() {
       try {
-        const res = await fetch("https://jokedrop-backend.onrender.com/moderate?email=" + email);
+        const res = await fetch("https://jokedrop-backend.onrender.com/moderation");
         const data = await res.json();
         if (!data.success) throw new Error(data.error);
 
-        if (data.jokes.length === 0) {
-          document.getElementById("pendingList").innerHTML = "<p>No pending jokes.</p>";
-          return;
-        }
-
-        const html = data.jokes.map(joke => `
+        const list = data.jokes.map((joke, index) => `
           <div class="dashboard-card">
-            <p><strong>${joke.email}</strong></p>
+            <h3>Pending Joke #${index + 1}</h3>
             <p>${joke.joke}</p>
-            <button onclick="approveJoke('${joke.id}')">✅ Approve</button>
-            <button onclick="deleteJoke('${joke.id}')">❌ Delete</button>
+            <p><strong>Submitted by:</strong> ${joke.email}</p>
+            <button onclick="moderate('${joke._id}', 'approved')">✅ Approve</button>
+            <button onclick="moderate('${joke._id}', 'rejected')">❌ Reject</button>
           </div>
         `).join("");
-        document.getElementById("pendingList").innerHTML = html;
 
+        document.getElementById("moderationList").innerHTML = list || "<p>No pending jokes.</p>";
       } catch (err) {
-        document.getElementById("pendingList").innerHTML = "Error loading jokes.";
+        document.getElementById("moderationList").innerHTML = "<p>⚠️ Failed to load jokes.</p>";
         console.error(err);
       }
     }
 
-    async function approveJoke(id) {
-      await fetch("https://jokedrop-backend.onrender.com/moderate/approve", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, id })
-      });
-      loadPendingJokes();
-    }
+    async function moderate(id, action) {
+      try {
+        const res = await fetch("https://jokedrop-backend.onrender.com/moderate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id, action })
+        });
 
-    async function deleteJoke(id) {
-      await fetch("https://jokedrop-backend.onrender.com/moderate/delete", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, id })
-      });
-      loadPendingJokes();
+        const result = await res.json();
+        if (result.success) {
+          alert(`✅ Joke ${action}`);
+          loadPendingJokes();
+        } else {
+          alert("❌ Failed to update joke.");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("❌ Server error.");
+      }
     }
 
     loadPendingJokes();
