@@ -24,15 +24,6 @@
       .then(res => res.text())
       .then(html => {
         document.getElementById("menu-container").innerHTML = html;
-
-        // After menu is loaded, trigger menu logic
-        const user = localStorage.getItem("jokedropUser");
-        if (user === "admin@joke-drop.com") {
-          const modLink = document.createElement("a");
-          modLink.href = "moderator.html";
-          modLink.textContent = "Moderate Jokes";
-          document.getElementById("side-menu")?.appendChild(modLink);
-        }
       });
 
     async function getJoke() {
