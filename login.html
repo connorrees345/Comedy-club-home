@@ -8,7 +8,15 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="menu-container"></div>
+  <div id="menu-button" onclick="toggleMenu()">☰</div>
+  <div id="side-menu">
+    <a href="index.html">Home</a>
+    <a href="submit.html">Submit a Joke</a>
+    <a href="register.html" id="register-link">Register</a>
+    <a href="login.html" id="login-link">Login</a>
+    <a href="#" onclick="logout()" id="logout-link" style="display:none;">Logout</a>
+  </div>
+
   <h1>Login to Joke Drop</h1>
 
   <form id="loginForm">
@@ -20,16 +28,22 @@
   <p id="loginStatus"></p>
 
   <script>
-    fetch('menu.html')
-      .then(res => res.text())
-      .then(html => {
-        document.getElementById('menu-container').innerHTML = html;
-        window.toggleMenu = function () {
-          const menu = document.getElementById("side-menu");
-          const isMobile = window.innerWidth <= 768;
-          menu.style.left = menu.style.left === "0px" ? (isMobile ? "-100%" : "-220px") : "0px";
-        };
-      });
+    function toggleMenu() {
+      const menu = document.getElementById("side-menu");
+      menu.style.left = menu.style.left === "0px" ? "-220px" : "0px";
+    }
+
+    function logout() {
+      localStorage.removeItem('jokedropUser');
+      window.location.href = 'index.html';
+    }
+
+    const user = localStorage.getItem("jokedropUser");
+    if (user) {
+      document.getElementById("logout-link").style.display = "block";
+      document.getElementById("login-link").style.display = "none";
+      document.getElementById("register-link").style.display = "none";
+    }
 
     document.getElementById("loginForm").addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -38,7 +52,7 @@
       const status = document.getElementById("loginStatus");
 
       try {
-        const res = await fetch("https://jokedrop-auth.connorrees345.repl.co/login", {
+        const res = await fetch("https://jokedrop-backend.onrender.com/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password })
@@ -48,12 +62,12 @@
         if (data.success) {
           localStorage.setItem("jokedropUser", email);
           status.textContent = "✅ Login successful! Redirecting...";
-          setTimeout(() => window.location.href = "dashboard.html", 1000);
+          setTimeout(() => window.location.href = "dashboard.html", 1200);
         } else {
           status.textContent = "❌ " + (data.error || "Login failed.");
         }
       } catch (err) {
-        status.textContent = "❌ Server error.";
+        status.textContent = "❌ Server error. Please try again.";
         console.error(err);
       }
     });
