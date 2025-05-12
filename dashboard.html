@@ -18,6 +18,7 @@
       <h2 id="profile-name"></h2>
       <p id="profile-location"></p>
       <p id="profile-dob"></p>
+      <p id="follower-count">Followers: 0 | Following: 0</p>
       <button onclick="window.location.href='settings.html'">Edit Profile / Settings</button>
     </section>
 
@@ -32,6 +33,16 @@
         <textarea id="joke" placeholder="Write your joke here..." rows="4" required></textarea><br>
         <button type="submit">Submit Joke</button>
       </form>
+    </section>
+
+    <section id="trending">
+      <h2>Trending Jokes</h2>
+      <ul id="trending-list"></ul>
+    </section>
+
+    <section id="follow-users">
+      <h2>People You Might Like</h2>
+      <ul id="user-suggestions"></ul>
     </section>
   </div>
 
@@ -61,6 +72,9 @@
         document.getElementById("profile-name").textContent = data.name || email;
         document.getElementById("profile-location").textContent = data.privacy?.location ? `Location: ${data.location}` : "";
         document.getElementById("profile-dob").textContent = data.privacy?.dob ? `Date of Birth: ${data.dob}` : "";
+        if (data.followers !== undefined && data.following !== undefined) {
+          document.getElementById("follower-count").textContent = `Followers: ${data.followers.length} | Following: ${data.following.length}`;
+        }
       }
     }
 
@@ -75,6 +89,41 @@
           list.appendChild(li);
         });
       }
+    }
+
+    async function loadTrending() {
+      const res = await fetch(`https://jokedrop-auth.connorrees345.repl.co/trending`);
+      const data = await res.json();
+      if (data.success) {
+        const list = document.getElementById("trending-list");
+        data.jokes.forEach(j => {
+          const li = document.createElement("li");
+          li.textContent = `${j.joke} — by ${j.name || j.email}`;
+          list.appendChild(li);
+        });
+      }
+    }
+
+    async function loadSuggestions() {
+      const res = await fetch(`https://jokedrop-auth.connorrees345.repl.co/users/suggestions?email=${email}`);
+      const data = await res.json();
+      if (data.success) {
+        const list = document.getElementById("user-suggestions");
+        data.users.forEach(user => {
+          const li = document.createElement("li");
+          li.innerHTML = `${user.name || user.email} <button onclick="followUser('${user.email}')">Follow</button>`;
+          list.appendChild(li);
+        });
+      }
+    }
+
+    async function followUser(targetEmail) {
+      await fetch(`https://jokedrop-auth.connorrees345.repl.co/follow`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ follower: email, target: targetEmail })
+      });
+      alert('Followed user!');
     }
 
     document.getElementById("jokeForm").addEventListener("submit", async e => {
@@ -96,6 +145,8 @@
 
     loadProfile();
     loadJokes();
+    loadTrending();
+    loadSuggestions();
   </script>
 </body>
 </html>
