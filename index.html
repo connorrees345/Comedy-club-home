@@ -1,57 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Joke Drop</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <!-- Menu Container -->
   <div id="menu-container"></div>
 
-  <main>
-    <h1>Welcome to Joke Drop!</h1>
-    <p>Tap the mic to hear a joke</p>
+  <!-- Main Content -->
+  <h1>Welcome to Joke Drop!</h1>
+  <p>Tap the mic to hear a joke</p>
 
-    <button id="mic-button" onclick="getJoke()">
-      <img src="https://i.imgur.com/QLAfA42.png" alt="Microphone">
-    </button>
+  <button id="mic-button">
+    <img src="https://i.imgur.com/QLAfA42.png" alt="Microphone" />
+  </button>
 
-    <div id="joke">Waiting for your first laugh...</div>
-  </main>
+  <div id="joke">Waiting for your first laugh...</div>
 
+  <!-- Scripts -->
   <script>
-    fetch('menu.html')
+    fetch("menu.html")
       .then(res => res.text())
       .then(html => {
-        document.getElementById('menu-container').innerHTML = html;
+        document.getElementById("menu-container").innerHTML = html;
 
-        window.toggleMenu = function () {
-          const menu = document.getElementById("side-menu");
-          menu.style.left = (menu.style.left === "0px") ? "-220px" : "0px";
-        };
+        const menuToggle = document.getElementById("menu-button");
+        const menuPanel = document.getElementById("side-menu");
+        if (menuToggle && menuPanel) {
+          menuToggle.addEventListener("click", () => {
+            const isOpen = menuPanel.style.left === "0px";
+            menuPanel.style.left = isOpen ? "-220px" : "0px";
+          });
+        }
 
-        const user = localStorage.getItem("jokedropUser");
-        document.getElementById("logout-link")?.style?.display = user ? "block" : "none";
-        document.getElementById("login-link")?.style?.display = user ? "none" : "block";
-        document.getElementById("register-link")?.style?.display = user ? "none" : "block";
-        document.getElementById("dashboard-link")?.style?.display = user ? "block" : "none";
-        document.getElementById("moderate-link")?.style?.display = user === "admin@joke-drop.com" ? "block" : "none";
+        const email = localStorage.getItem("jokedropUser");
+        if (email) {
+          document.getElementById("logout-link")?.style.setProperty("display", "block");
+          document.getElementById("login-link")?.style.setProperty("display", "none");
+          document.getElementById("register-link")?.style.setProperty("display", "none");
+          document.getElementById("dashboard-link")?.style.setProperty("display", "block");
+
+          if (email === "admin@joke-drop.com") {
+            document.getElementById("moderator-link")?.style.setProperty("display", "block");
+          }
+        }
       });
 
-    async function getJoke() {
-      const box = document.getElementById("joke");
-      box.textContent = "Loading a joke...";
-      try {
-        const res = await fetch("https://icanhazdadjoke.com/", {
-          headers: { "Accept": "application/json" }
-        });
-        const data = await res.json();
-        box.textContent = data.joke;
-      } catch (err) {
-        box.textContent = "Oops! No joke right now.";
-      }
+    document.addEventListener("DOMContentLoaded", () => {
+      const micButton = document.getElementById("mic-button");
+      micButton.addEventListener("click", async () => {
+        const jokeBox = document.getElementById("joke");
+        jokeBox.textContent = "Loading a joke...";
+        try {
+          const res = await fetch("https://icanhazdadjoke.com/", {
+            headers: { Accept: "application/json" },
+          });
+          const data = await res.json();
+          jokeBox.textContent = data.joke;
+        } catch (err) {
+          jokeBox.textContent = "Oops! No joke right now.";
+        }
+      });
+    });
+
+    function logout() {
+      localStorage.removeItem("jokedropUser");
+      window.location.href = "index.html";
     }
   </script>
 </body>
