@@ -9,31 +9,15 @@
 </div>
 
 <script>
-  // Make menu toggle globally accessible
-  window.toggleMenu = function () {
-    const menu = document.getElementById("side-menu");
-    if (menu) {
-      menu.style.left = menu.style.left === "0px" ? "-220px" : "0px";
-    }
+  const email = localStorage.getItem("jokedropUser");
+  if (email) {
+    document.getElementById("logout-link").style.display = "block";
+    document.getElementById("login-link").style.display = "none";
+    document.getElementById("register-link").style.display = "none";
   }
 
-  window.logout = function () {
+  function logout() {
     localStorage.removeItem("jokedropUser");
     window.location.href = "index.html";
-  }
-
-  const user = localStorage.getItem("jokedropUser");
-
-  if (user) {
-    document.getElementById("logout-link")?.style?.display = "block";
-    document.getElementById("login-link")?.style?.display = "none";
-    document.getElementById("register-link")?.style?.display = "none";
-
-    if (user === "admin@joke-drop.com") {
-      const modLink = document.createElement("a");
-      modLink.href = "moderator.html";
-      modLink.textContent = "Moderate Jokes";
-      document.getElementById("side-menu")?.appendChild(modLink);
-    }
   }
 </script>
