@@ -23,6 +23,14 @@
     .dashboard-card p {
       margin: 5px 0;
     }
+    .follow-button {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -39,6 +47,8 @@
   <h1>Your Joke Drop Dashboard</h1>
   <div id="welcome"></div>
   <div id="profile"></div>
+  <div id="followCounts"></div>
+  <div id="suggestedUsers"></div>
   <div id="jokeList"></div>
   <h2 style="color:white; margin-top: 40px;">Trending Jokes</h2>
   <div id="trendingList"></div>
@@ -82,6 +92,26 @@
         `;
         document.getElementById("profile").innerHTML = profileHTML;
 
+        document.getElementById("followCounts").innerHTML = `
+          <div class="dashboard-card">
+            <h3>Connections</h3>
+            <p><strong>Followers:</strong> ${profileData.followers?.length || 0}</p>
+            <p><strong>Following:</strong> ${profileData.following?.length || 0}</p>
+          </div>
+        `;
+
+        const suggestionsRes = await fetch(`https://jokedrop-backend.onrender.com/users/suggestions?email=${email}`);
+        const suggestions = await suggestionsRes.json();
+        if (suggestions.success && suggestions.users.length > 0) {
+          const suggestionsHTML = suggestions.users.map(user => `
+            <div class="dashboard-card">
+              <p><strong>${user.name || user.email}</strong></p>
+              <button class="follow-button" onclick="followUser('${user.email}')">Follow</button>
+            </div>
+          `).join("");
+          document.getElementById("suggestedUsers").innerHTML = `<h2 style='color:white'>Suggested Users</h2>${suggestionsHTML}`;
+        }
+
         const jokeRes = await fetch(`https://jokedrop-backend.onrender.com/jokes?email=${email}`);
         const jokeData = await jokeRes.json();
         if (!jokeData.success) throw new Error(jokeData.error);
@@ -110,6 +140,26 @@
       } catch (err) {
         console.error(err);
         document.getElementById("jokeList").innerHTML = "<p>⚠️ Failed to load dashboard info.</p>";
+      }
+    }
+
+    async function followUser(targetEmail) {
+      try {
+        const res = await fetch("https://jokedrop-backend.onrender.com/follow", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ follower: email, target: targetEmail })
+        });
+        const result = await res.json();
+        if (result.success) {
+          alert("✅ Followed successfully!");
+          loadDashboard();
+        } else {
+          alert("❌ " + (result.error || "Failed to follow user."));
+        }
+      } catch (err) {
+        console.error(err);
+        alert("❌ Server error");
       }
     }
 
