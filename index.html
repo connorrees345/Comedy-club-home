@@ -24,10 +24,27 @@
       .then(res => res.text())
       .then(html => {
         document.getElementById("menu-container").innerHTML = html;
+
+        const user = localStorage.getItem("jokedropUser");
+        if (user) {
+          document.getElementById('logout-link')?.style?.setProperty('display', 'block');
+          document.getElementById('login-link')?.style?.setProperty('display', 'none');
+          document.getElementById('register-link')?.style?.setProperty('display', 'none');
+
+          const dashboardLink = document.querySelector('a[href="dashboard.html"]');
+          if (dashboardLink) dashboardLink.style.display = "inline-block";
+
+          if (user === "admin@joke-drop.com") {
+            const modLink = document.createElement("a");
+            modLink.href = "moderator.html";
+            modLink.textContent = "Moderate Jokes";
+            document.getElementById("side-menu")?.appendChild(modLink);
+          }
+        }
       });
 
     async function getJoke() {
-      const jokeBox = document.getElementById("joke");
+      const jokeBox = document.getElementById('joke');
       jokeBox.textContent = "Loading a joke...";
       try {
         const res = await fetch("https://icanhazdadjoke.com/", {
@@ -40,14 +57,6 @@
         console.error(err);
       }
     }
-
-    // Define toggleMenu globally
-    window.toggleMenu = function () {
-      const menu = document.getElementById("side-menu");
-      if (menu) {
-        menu.style.left = (menu.style.left === "0px") ? "-220px" : "0px";
-      }
-    };
   </script>
 </body>
 </html>
