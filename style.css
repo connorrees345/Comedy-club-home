@@ -1,4 +1,4 @@
-/* Joke Drop Unified Style */
+/* Joke Drop Full Site Styling */
 
 html, body {
   height: 100%;
@@ -18,11 +18,13 @@ html, body {
   box-sizing: border-box;
 }
 
+/* Headings */
 h1, h2 {
   color: #fff;
   text-shadow: 2px 2px 4px black;
 }
 
+/* Menu Toggle Button */
 #menu-button {
   position: fixed;
   top: 15px;
@@ -34,6 +36,7 @@ h1, h2 {
   text-shadow: 1px 1px 3px black;
 }
 
+/* Slide-out Sidebar Menu */
 #side-menu {
   position: fixed;
   top: 0;
@@ -59,6 +62,7 @@ h1, h2 {
   background-color: rgba(255, 255, 255, 0.1);
 }
 
+/* Input and Form Styling */
 input, textarea {
   width: 90%;
   max-width: 400px;
@@ -93,6 +97,7 @@ button:hover {
   background-color: #218838;
 }
 
+/* Joke Box */
 #joke {
   font-size: 1.3em;
   max-width: 100%;
@@ -104,6 +109,7 @@ button:hover {
   box-sizing: border-box;
 }
 
+/* Microphone Button */
 #mic-button {
   background: none;
   border: none;
@@ -123,6 +129,7 @@ button:hover {
   transform: scale(1.1);
 }
 
+/* Joke List */
 ul#jokes-list {
   list-style: none;
   padding: 0;
@@ -137,10 +144,7 @@ ul#jokes-list li {
   border-radius: 5px;
 }
 
-form {
-  margin-top: 20px;
-}
-
+/* Responsive Adjustments */
 @media screen and (max-width: 768px) {
   #side-menu {
     width: 100%;
