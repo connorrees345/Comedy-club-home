@@ -9,14 +9,15 @@
 </div>
 
 <script>
-  function toggleMenu() {
+  // Make menu toggle globally accessible
+  window.toggleMenu = function () {
     const menu = document.getElementById("side-menu");
     if (menu) {
       menu.style.left = menu.style.left === "0px" ? "-220px" : "0px";
     }
   }
 
-  function logout() {
+  window.logout = function () {
     localStorage.removeItem("jokedropUser");
     window.location.href = "index.html";
   }
