@@ -4,73 +4,98 @@
   <meta charset="UTF-8">
   <title>Joke Drop</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="google-adsense-account" content="ca-pub-8362260057219418" />
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka&family=Bangers&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <script type="module" src="firebase-config.js"></script>
 </head>
 <body>
+  <!-- Slide-out menu -->
   <div id="menu-button" onclick="toggleMenu()">☰</div>
   <div id="side-menu">
     <a href="index.html">Home</a>
     <a href="submit.html">Submit a Joke</a>
     <a href="dashboard.html">Dashboard</a>
-    <a href="login.html" id="login-link">Login</a>
     <a href="register.html" id="register-link">Register</a>
-    <a href="#" id="logout-link" style="display:none;" onclick="logout()">Logout</a>
+    <a href="login.html" id="login-link">Login</a>
+    <a href="#" onclick="logout()" id="logout-link" style="display:none;">Logout</a>
   </div>
 
-  <div class="hero">
-    <h1>Welcome to <span class="highlight">Joke Drop!</span></h1>
-    <p class="sub">Tap the mic to hear a joke</p>
+  <h1>Welcome to Joke Drop</h1>
+  <p id="welcome-message"></p>
 
-    <div id="signup-promo" style="display: none;">
-      <p><strong>Got jokes?</strong> Sign up today and drop your own punchlines in the <span class="highlight">Joke Vault</span>!</p>
-    </div>
-
-    <button id="mic-button">
-      <img src="https://i.imgur.com/QLAfA42.png" alt="Microphone">
-    </button>
-
-    <div id="joke">Waiting for your first laugh...</div>
+  <div id="auth-banner" style="display:none; margin-top: 20px;">
+    <p><strong>Want to share your own jokes?</strong></p>
+    <a href="register.html"><button>Sign up now</button></a>
   </div>
 
-  <script>
-    function toggleMenu() {
-      const menu = document.getElementById("side-menu");
-      const isOpen = menu.style.left === "0px";
-      menu.style.left = isOpen ? (window.innerWidth <= 768 ? "-100%" : "-220px") : "0px";
-    }
+  <p style="margin-top: 30px;">Tap the mic to hear a joke</p>
+  <button id="mic-button" onclick="getJoke()">
+    <img src="https://i.imgur.com/QLAfA42.png" alt="Microphone">
+  </button>
 
-    function logout() {
-      localStorage.removeItem('jokedropUser');
-      window.location.href = 'index.html';
-    }
+  <div id="joke">Waiting for your first laugh...</div>
 
-    document.addEventListener("DOMContentLoaded", () => {
-      const user = localStorage.getItem('jokedropUser');
+  <script type="module">
+    import {
+      onAuthStateChanged,
+      getAuth,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    const auth = getAuth();
+    const baseUrl = "https://jokedrop-auth.connorrees345.repl.co";
+
+    onAuthStateChanged(auth, async (user) => {
+      const welcome = document.getElementById("welcome-message");
+      const banner = document.getElementById("auth-banner");
 
       if (user) {
-        document.getElementById('logout-link').style.display = 'block';
-        document.getElementById('login-link').style.display = 'none';
-        document.getElementById('register-link').style.display = 'none';
-      } else {
-        document.getElementById('signup-promo').style.display = 'block';
-      }
+        document.getElementById("logout-link").style.display = "block";
+        document.getElementById("login-link").style.display = "none";
+        document.getElementById("register-link").style.display = "none";
 
-      const micBtn = document.getElementById("mic-button");
-      const jokeBox = document.getElementById("joke");
-
-      micBtn.addEventListener("click", async () => {
-        jokeBox.textContent = "Loading a joke...";
         try {
-          const res = await fetch("https://v2.jokeapi.dev/joke/Any?type=single");
+          const res = await fetch(`${baseUrl}/profile?email=${encodeURIComponent(user.email)}`);
           const data = await res.json();
-          jokeBox.textContent = data.joke || "No joke found!";
-        } catch (err) {
-          jokeBox.textContent = "Oops! Couldn't load a joke.";
+          const displayName = data.name?.trim();
+          welcome.textContent = `Welcome, ${displayName || user.email}`;
+        } catch {
+          welcome.textContent = `Welcome, ${user.email}`;
         }
-      });
+      } else {
+        banner.style.display = "block";
+      }
     });
+
+    window.logout = async function () {
+      await signOut(auth);
+      window.location.href = "index.html";
+    };
+  </script>
+
+  <script>
+    async function getJoke() {
+      const jokeBox = document.getElementById('joke');
+      jokeBox.textContent = "Loading a joke...";
+
+      try {
+        const res = await fetch('https://icanhazdadjoke.com/', {
+          headers: { 'Accept': 'application/json' }
+        });
+        const data = await res.json();
+        jokeBox.textContent = data.joke;
+      } catch (err) {
+        jokeBox.textContent = "Oops! No joke right now.";
+        console.error(err);
+      }
+    }
+
+    function toggleMenu() {
+      const menu = document.getElementById("side-menu");
+      menu.style.left = menu.style.left === "0px"
+        ? (window.innerWidth <= 768 ? "-100%" : "-220px")
+        : "0px";
+    }
   </script>
 </body>
 </html>
