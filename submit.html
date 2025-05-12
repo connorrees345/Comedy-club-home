@@ -8,16 +8,10 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="menu-button" onclick="toggleMenu()">☰</div>
-  <div id="side-menu">
-    <a href="index.html">Home</a>
-    <a href="submit.html">Submit a Joke</a>
-    <a href="register.html" id="register-link">Register</a>
-    <a href="login.html" id="login-link">Login</a>
-    <a href="#" onclick="logout()" id="logout-link" style="display:none;">Logout</a>
-  </div>
+  <!-- Menu will be dynamically loaded -->
+  <div id="menu-container"></div>
 
-  <h1>Submit Your Joke</h1>
+  <h1>Submit a Joke</h1>
 
   <form id="jokeForm">
     <textarea id="joke" placeholder="Write your joke here..." rows="5" cols="40" required></textarea><br><br>
@@ -27,26 +21,21 @@
   <p id="response"></p>
 
   <script>
-    function toggleMenu() {
-      const menu = document.getElementById("side-menu");
-      menu.style.left = menu.style.left === "0px" ? "-220px" : "0px";
-    }
+    // Load the sidebar menu
+    fetch("menu.html")
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById("menu-container").innerHTML = html;
+      });
 
-    function logout() {
-      localStorage.removeItem('jokedropUser');
-      window.location.href = 'index.html';
-    }
-
+    // Check login
     const email = localStorage.getItem("jokedropUser");
     if (!email) {
       window.location.href = "login.html";
-    } else {
-      document.getElementById("logout-link").style.display = "block";
-      document.getElementById("login-link").style.display = "none";
-      document.getElementById("register-link").style.display = "none";
     }
 
-    document.getElementById("jokeForm").addEventListener("submit", async (e) => {
+    // Submit joke handler
+    document.getElementById("jokeForm").addEventListener("submit", async function (e) {
       e.preventDefault();
       const joke = document.getElementById("joke").value;
       const responseBox = document.getElementById("response");
@@ -58,16 +47,16 @@
           body: JSON.stringify({ email, joke })
         });
 
-        const result = await res.json();
-        if (result.success) {
+        const data = await res.json();
+        if (data.success) {
           responseBox.innerHTML = "✅ Joke submitted for review!";
           document.getElementById("jokeForm").reset();
         } else {
-          responseBox.innerHTML = "❌ " + (result.error || "Submission failed.");
+          responseBox.innerHTML = "❌ " + (data.error || "Submission failed.");
         }
       } catch (err) {
-        responseBox.innerHTML = "❌ Server error.";
         console.error(err);
+        responseBox.innerHTML = "❌ Server error.";
       }
     });
   </script>
