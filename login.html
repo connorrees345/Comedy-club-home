@@ -2,98 +2,54 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Login - Joke Drop</title>
+  <title>Register - Joke Drop</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Fredoka&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
-  <style>
-    body {
-      font-family: 'Fredoka', sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background: url('background.webp') no-repeat center center fixed;
-      background-size: cover;
-      margin: 0;
-    }
-
-    .login-container {
-      background-color: rgba(0, 0, 0, 0.7);
-      padding: 40px;
-      border-radius: 10px;
-      width: 100%;
-      max-width: 400px;
-      text-align: center;
-      color: white;
-      box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.3);
-    }
-
-    h1 {
-      color: #FFD700;
-    }
-
-    input {
-      width: 100%;
-      padding: 15px;
-      margin: 10px 0;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      font-size: 1em;
-      background-color: #333;
-      color: white;
-    }
-
-    button {
-      width: 100%;
-      padding: 15px;
-      margin: 10px 0;
-      background-color: #28a745;
-      border: none;
-      border-radius: 5px;
-      color: white;
-      font-size: 1em;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #218838;
-    }
-
-    p {
-      color: white;
-    }
-
-    .error-message {
-      color: red;
-      font-size: 0.9em;
-    }
-  </style>
 </head>
 <body>
-  <div class="login-container">
-    <h1>Login to Joke Drop</h1>
+  <div id="menu-container"></div>
 
-    <form id="loginForm">
-      <input type="email" id="email" placeholder="Enter your email" required><br><br>
-      <input type="password" id="password" placeholder="Enter your password" required><br><br>
-      <button type="submit">Login</button>
-    </form>
+  <h1>Register for Joke Drop</h1>
 
-    <p id="loginStatus"></p>
+  <form id="registerForm">
+    <input type="email" id="email" placeholder="Email" required><br><br>
+    <input type="password" id="password" placeholder="Password" required><br><br>
+    <button type="submit">Register</button>
+  </form>
 
-    <p>Don't have an account? <a href="register.html" style="color: #FFD700;">Sign up here</a></p>
-  </div>
+  <p id="registerStatus"></p>
 
   <script>
-    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+    fetch("menu.html")
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById("menu-container").innerHTML = html;
+        const menuToggle = document.getElementById("menu-button");
+        const menuPanel = document.getElementById("side-menu");
+        if (menuToggle && menuPanel) {
+          menuToggle.addEventListener("click", () => {
+            menuPanel.style.left = menuPanel.style.left === "0px" ? "-220px" : "0px";
+          });
+        }
+
+        const email = localStorage.getItem("jokedropUser");
+        if (email) {
+          document.getElementById("logout-link")?.style.setProperty("display", "block");
+          document.getElementById("login-link")?.style.setProperty("display", "none");
+          document.getElementById("register-link")?.style.setProperty("display", "none");
+          document.getElementById("dashboard-link")?.style.setProperty("display", "block");
+        }
+      });
+
+    document.getElementById("registerForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
-      const status = document.getElementById("loginStatus");
+      const status = document.getElementById("registerStatus");
 
       try {
-        const res = await fetch("https://jokedrop-auth.connorrees345.repl.co/login", {
+        const res = await fetch("https://jokedrop-backend.onrender.com/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password })
@@ -101,11 +57,10 @@
 
         const data = await res.json();
         if (data.success) {
-          localStorage.setItem("jokedropUser", email);
-          status.textContent = "✅ Login successful! Redirecting...";
-          setTimeout(() => window.location.href = "dashboard.html", 1000);
+          status.textContent = "✅ Registration successful! Redirecting...";
+          setTimeout(() => window.location.href = "login.html", 1000);
         } else {
-          status.textContent = "❌ " + (data.error || "Login failed.");
+          status.textContent = "❌ " + (data.error || "Registration failed.");
         }
       } catch (err) {
         status.textContent = "❌ Server error.";
