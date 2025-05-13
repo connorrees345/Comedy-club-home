@@ -1,29 +1,30 @@
-/* Updated styles for the site */
+/* General styles */
 body {
+  margin: 0;
   font-family: 'Fredoka', sans-serif;
   background-image: url('background.webp');
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
   color: white;
   text-align: center;
+  padding: 20px;
+  text-shadow: 1px 1px 2px black;
 }
 
-#menu-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
+h1, h2 {
+  color: white;
 }
 
 #menu-button {
+  position: fixed;
+  top: 15px;
+  left: 15px;
   font-size: 2em;
   cursor: pointer;
-  position: fixed;
-  top: 10px;
-  left: 10px;
+  z-index: 1001;
   color: white;
-  z-index: 110;
+  text-shadow: 1px 1px 3px black;
 }
 
 #side-menu {
@@ -37,6 +38,7 @@ body {
   flex-direction: column;
   padding-top: 60px;
   transition: left 0.3s ease;
+  z-index: 1000;
 }
 
 #side-menu a {
@@ -50,14 +52,13 @@ body {
   background-color: rgba(255, 255, 255, 0.1);
 }
 
-button {
-  padding: 10px 20px;
-  font-size: 1em;
-  cursor: pointer;
-  background-color: #28a745;
-  color: white;
-  border: none;
-  border-radius: 5px;
+#joke {
+  font-size: 1.3em;
+  max-width: 600px;
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 15px 20px;
+  border-radius: 10px;
+  margin-top: 20px;
 }
 
 #mic-button {
@@ -87,4 +88,95 @@ button {
 #mic-button:hover {
   background-color: #FFB300;
   transform: translate(-50%, -50%) scale(1.1);
+}
+
+input, textarea {
+  width: 90%;
+  max-width: 400px;
+  padding: 10px;
+  margin: 10px 0;
+  font-size: 1em;
+  border-radius: 5px;
+  border: none;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 1em;
+  cursor: pointer;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+}
+
+/* Dashboard specific styles */
+.dashboard-card {
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 15px;
+  border-radius: 10px;
+  margin: 15px auto;
+  max-width: 600px;
+  color: white;
+  text-align: left;
+}
+
+.dashboard-card h3 {
+  margin-top: 0;
+  color: #ffd700;
+}
+
+.dashboard-card p {
+  margin: 5px 0;
+}
+
+.follow-button {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+#profile-card {
+  width: 100%;
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+#profile-card input {
+  margin-bottom: 10px;
+}
+
+/* Mobile responsiveness */
+@media screen and (max-width: 768px) {
+  body {
+    padding: 15px;
+  }
+
+  #mic-button {
+    width: 100px;
+    height: 100px;
+  }
+
+  #mic-button img {
+    width: 70%;
+    height: 70%;
+  }
+
+  #side-menu {
+    left: -100%;
+  }
+
+  #side-menu a {
+    font-size: 1em;
+  }
+
+  #menu-button {
+    font-size: 1.5em;
+  }
 }
