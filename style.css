@@ -1,49 +1,29 @@
+/* Updated styles for the site */
 body {
-  margin: 0;
   font-family: 'Fredoka', sans-serif;
-  background: url('background.webp') no-repeat center center fixed;
+  background-image: url('background.webp');
   background-size: cover;
+  background-position: center;
   color: white;
   text-align: center;
 }
 
-h1 {
-  font-size: 2.5em;
-  margin-top: 50px;
-  text-shadow: 2px 2px 5px #000;
+#menu-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
 }
 
-#mic-button {
-  background: none;
-  border: none;
-  margin-top: 30px;
-  cursor: pointer;
-}
-
-#mic-button img {
-  width: 100px;
-  height: auto;
-  filter: drop-shadow(0 0 5px black);
-}
-
-#joke {
-  margin-top: 20px;
-  font-size: 1.2em;
-  background-color: rgba(0, 0, 0, 0.6);
-  display: inline-block;
-  padding: 10px 20px;
-  border-radius: 10px;
-}
-
-/* Menu */
 #menu-button {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  font-size: 30px;
-  color: white;
+  font-size: 2em;
   cursor: pointer;
-  z-index: 10;
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  color: white;
+  z-index: 110;
 }
 
 #side-menu {
@@ -52,21 +32,59 @@ h1 {
   left: -220px;
   width: 200px;
   height: 100%;
-  background: rgba(0, 0, 0, 0.85);
-  padding-top: 60px;
-  transition: left 0.3s;
-  z-index: 9;
+  background-color: rgba(0, 0, 0, 0.9);
   display: flex;
   flex-direction: column;
+  padding-top: 60px;
+  transition: left 0.3s ease;
 }
 
 #side-menu a {
   color: white;
-  padding: 10px 20px;
   text-decoration: none;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
+  padding: 15px 20px;
+  font-size: 1.2em;
 }
 
 #side-menu a:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 1em;
+  cursor: pointer;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+}
+
+#mic-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+  width: 150px;
+  height: 150px;
+  background-color: #FFD700;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+#mic-button img {
+  width: 80%;
+  height: 80%;
+}
+
+#mic-button:hover {
+  background-color: #FFB300;
+  transform: translate(-50%, -50%) scale(1.1);
 }
