@@ -6,108 +6,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Fredoka&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
-  <style>
-    /* Styling for the menu and overall layout */
-    body {
-      margin: 0;
-      font-family: 'Fredoka', sans-serif;
-      background-image: url('background.webp');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      color: white;
-      text-align: center;
-      padding: 20px;
-      text-shadow: 1px 1px 2px black;
-    }
-
-    /* Menu button and side menu styles */
-    #menu-button {
-      position: fixed;
-      top: 15px;
-      left: 15px;
-      font-size: 2em;
-      cursor: pointer;
-      z-index: 1001;
-      color: white;
-      text-shadow: 1px 1px 3px black;
-    }
-
-    #side-menu {
-      position: fixed;
-      top: 0;
-      left: -220px;
-      width: 200px;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.9);
-      display: flex;
-      flex-direction: column;
-      padding-top: 60px;
-      transition: left 0.3s ease;
-      z-index: 1000;
-    }
-
-    #side-menu a {
-      color: white;
-      text-decoration: none;
-      padding: 15px 20px;
-      font-size: 1.2em;
-    }
-
-    #side-menu a:hover {
-      background-color: rgba(255, 255, 255, 0.1);
-    }
-
-    /* Styling for joke display and mic button */
-    #mic-button {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin: 0 auto;
-      width: 150px;
-      height: 150px;
-      background-color: #FFD700;
-      border-radius: 50%;
-      border: none;
-      cursor: pointer;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-      transition: all 0.3s ease;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-    }
-
-    #mic-button img {
-      width: 80%;
-      height: 80%;
-    }
-
-    #mic-button:hover {
-      background-color: #FFB300;
-      transform: translate(-50%, -50%) scale(1.1);
-    }
-
-    #joke {
-      font-size: 1.3em;
-      max-width: 600px;
-      background-color: rgba(0, 0, 0, 0.6);
-      padding: 15px 20px;
-      border-radius: 10px;
-      margin-top: 20px;
-    }
-
-    /* User info and buttons */
-    #welcome {
-      font-weight: bold;
-      color: lightgreen;
-      margin-top: 20px;
-    }
-  </style>
 </head>
 <body>
-  <div id="menu-container"></div>
+  <!-- Top Navigation Bar -->
+  <div id="top-menu">
+    <div id="logo">Joke Drop</div>
+    <div id="menu-links">
+      <a href="index.html" class="menu-item">Home</a>
+      <a href="submit.html" class="menu-item">Submit Joke</a>
+      <a href="moderator.html" class="menu-item" id="moderator-link" style="display:none;">Moderator</a>
+      <a href="login.html" id="login-link" class="menu-item">Login</a>
+      <a href="register.html" id="register-link" class="menu-item">Register</a>
+      <a href="dashboard.html" id="dashboard-link" class="menu-item" style="display:none;">Dashboard</a>
+      <a href="#" id="logout-link" class="menu-item" style="display:none;" onclick="logout()">Logout</a>
+    </div>
+  </div>
 
+  <!-- Content Section -->
   <h1>Welcome to Joke Drop!</h1>
   <p>Tap the mic to hear a joke</p>
 
@@ -118,39 +33,26 @@
   <div id="joke">Waiting for your first laugh...</div>
 
   <script>
-    // Load the menu dynamically
-    fetch("menu.html")
-      .then(res => res.text())
-      .then(html => {
-        document.getElementById("menu-container").innerHTML = html;
-
-        // Check if user is logged in and adjust menu accordingly
-        const email = localStorage.getItem("jokedropUser");
-        if (email) {
-          document.getElementById("logout-link")?.style.setProperty("display", "block");
-          document.getElementById("login-link")?.style.setProperty("display", "none");
-          document.getElementById("register-link")?.style.setProperty("display", "none");
-          document.getElementById("dashboard-link")?.style.setProperty("display", "block");
-
-          if (email === "admin@joke-drop.com") {
-            document.getElementById("moderator-link")?.style.setProperty("display", "block");
-          }
-        }
-      });
-
-    // Toggle the menu
-    function toggleMenu() {
-      const menu = document.getElementById("side-menu");
-      menu.style.left = (menu.style.left === "0px") ? "-220px" : "0px";
+    // Update menu links based on login status
+    const email = localStorage.getItem("jokedropUser");
+    if (email) {
+      document.getElementById("logout-link").style.display = "block";
+      document.getElementById("login-link").style.display = "none";
+      document.getElementById("register-link").style.display = "none";
+      document.getElementById("dashboard-link").style.display = "block";
+      
+      if (email === "admin@joke-drop.com") {
+        document.getElementById("moderator-link").style.display = "block";
+      }
     }
 
-    // Logout function
+    // Logout functionality
     function logout() {
       localStorage.removeItem('jokedropUser');
       window.location.href = 'index.html';
     }
 
-    // Fetch a joke
+    // Fetch joke
     async function getJoke() {
       const jokeBox = document.getElementById("joke");
       jokeBox.textContent = "Loading a joke...";
