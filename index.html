@@ -6,133 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Fredoka&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
-  <style>
-    /* Centering microphone button */
-    #mic-button {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin: 0 auto;
-      width: 150px;
-      height: 150px;
-      background-color: #FFD700;
-      border-radius: 50%;
-      border: none;
-      cursor: pointer;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-      transition: all 0.3s ease;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-    }
-
-    #mic-button img {
-      width: 80%;
-      height: 80%;
-    }
-
-    #mic-button:hover {
-      background-color: #FFB300;
-      transform: translate(-50%, -50%) scale(1.1);
-    }
-
-    /* Menu styles */
-    #side-menu {
-      position: fixed;
-      top: 0;
-      left: -220px;
-      width: 220px;
-      height: 100%;
-      background-color: #333;
-      color: white;
-      padding-top: 50px;
-      transition: all 0.3s ease;
-    }
-
-    #side-menu a {
-      padding: 10px 15px;
-      text-decoration: none;
-      color: white;
-      display: block;
-      font-size: 18px;
-    }
-
-    #side-menu a:hover {
-      background-color: #575757;
-    }
-
-    #menu-button {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      font-size: 30px;
-      color: white;
-      cursor: pointer;
-    }
-
-    /* Body background */
-    body {
-      background-image: url('background.webp');
-      background-size: cover;
-      background-position: center;
-      font-family: 'Fredoka', sans-serif;
-      margin: 0;
-      padding: 0;
-    }
-
-    h1 {
-      text-align: center;
-      color: white;
-      margin-top: 100px;
-      font-size: 36px;
-    }
-
-    #joke {
-      text-align: center;
-      font-size: 24px;
-      color: white;
-      margin-top: 20px;
-    }
-
-    /* Responsive layout adjustments */
-    @media (max-width: 768px) {
-      #mic-button {
-        width: 120px;
-        height: 120px;
-      }
-
-      #mic-button img {
-        width: 70%;
-        height: 70%;
-      }
-
-      #side-menu {
-        width: 200px;
-      }
-
-      #menu-button {
-        font-size: 25px;
-      }
-    }
-
-  </style>
 </head>
 <body>
-
-  <!-- Menu Button -->
-  <div id="menu-button" onclick="toggleMenu()">☰</div>
-
-  <!-- Sidebar Menu -->
-  <div id="side-menu">
-    <a href="index.html">Home</a>
-    <a href="submit.html">Submit a Joke</a>
-    <a href="dashboard.html" id="dashboard-link" style="display:none;">Dashboard</a>
-    <a href="login.html" id="login-link">Login</a>
-    <a href="register.html" id="register-link">Register</a>
-    <a href="#" id="logout-link" onclick="logout()" style="display:none;">Logout</a>
-    <a href="moderate.html" id="moderator-link" style="display:none;">Moderator</a>
-  </div>
+  <!-- Menu Container -->
+  <div id="menu-container"></div>
 
   <!-- Main Content -->
   <h1>Welcome to Joke Drop!</h1>
@@ -144,8 +21,9 @@
 
   <div id="joke">Waiting for your first laugh...</div>
 
-  <!-- Load Menu -->
+  <!-- Script for Menu and Joke Functionality -->
   <script>
+    // Fetch the menu and inject it into the page
     fetch("menu.html")
       .then(res => res.text())
       .then(html => {
@@ -154,12 +32,14 @@
         const menuToggle = document.getElementById("menu-button");
         const menuPanel = document.getElementById("side-menu");
 
+        // Menu toggle functionality
         if (menuToggle && menuPanel) {
           menuToggle.addEventListener("click", () => {
             menuPanel.style.left = menuPanel.style.left === "0px" ? "-220px" : "0px";
           });
         }
 
+        // Show/hide elements based on login status
         const email = localStorage.getItem("jokedropUser");
         if (email) {
           document.getElementById("logout-link")?.style.setProperty("display", "block");
@@ -173,7 +53,7 @@
         }
       });
 
-    // Function to fetch a joke
+    // Function to fetch a random joke
     function getJoke() {
       const jokeBox = document.getElementById("joke");
       jokeBox.textContent = "Loading a joke...";
@@ -183,18 +63,6 @@
         .then(res => res.json())
         .then(data => jokeBox.textContent = data.joke)
         .catch(() => jokeBox.textContent = "Oops! No joke right now.");
-    }
-
-    // Toggle the menu visibility
-    function toggleMenu() {
-      const menu = document.getElementById("side-menu");
-      menu.style.left = menu.style.left === "0px" ? "-220px" : "0px";
-    }
-
-    // Logout function
-    function logout() {
-      localStorage.removeItem('jokedropUser');
-      window.location.href = 'index.html';
     }
   </script>
 
