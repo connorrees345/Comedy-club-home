@@ -20,7 +20,6 @@
   <div id="joke">Waiting for your first laugh...</div>
 
   <script>
-    // Fetch menu and inject into page
     fetch("menu.html")
       .then(res => res.text())
       .then(html => {
@@ -47,7 +46,6 @@
         }
       });
 
-    // Function to get joke from external API
     function getJoke() {
       const jokeBox = document.getElementById("joke");
       jokeBox.textContent = "Loading a joke...";
