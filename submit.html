@@ -2,45 +2,74 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Submit Joke - Joke Drop</title>
+  <title>Submit a Joke - Joke Drop</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Fredoka&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- Slide-out Menu -->
   <div id="menu-container"></div>
 
-  <h1>Submit Your Joke!</h1>
-  <form id="jokeForm">
-    <input type="text" id="joke" placeholder="Your joke here" required><br><br>
+  <h1>Submit Your Joke</h1>
+
+  <!-- Form for submitting jokes -->
+  <form id="submitJokeForm">
+    <textarea id="joke" placeholder="Type your joke here..." required rows="4" cols="50"></textarea><br>
     <button type="submit">Submit Joke</button>
   </form>
 
+  <!-- Display status message -->
+  <p id="statusMessage"></p>
+
   <script>
+    // Fetch menu from external menu.html file
     fetch("menu.html")
       .then(res => res.text())
       .then(html => {
         document.getElementById("menu-container").innerHTML = html;
+
+        // Handle user login/logout dynamically
+        const email = localStorage.getItem("jokedropUser");
+        if (email) {
+          document.getElementById("logout-link").style.display = "block";
+          document.getElementById("login-link").style.display = "none";
+          document.getElementById("register-link").style.display = "none";
+          document.getElementById("dashboard-link").style.display = "block";
+        }
       });
 
-    document.getElementById("jokeForm").addEventListener("submit", async (e) => {
+    // Submit Joke
+    document.getElementById("submitJokeForm").addEventListener("submit", async function(e) {
       e.preventDefault();
-      const jokeText = document.getElementById("joke").value;
-
+      const jokeContent = document.getElementById("joke").value;
       const email = localStorage.getItem("jokedropUser");
-      if (!email) return window.location.href = "login.html";
 
-      const res = await fetch("/submit", {
+      // Check if user is logged in
+      if (!email) {
+        alert("Please log in to submit a joke.");
+        window.location.href = "login.html";
+        return;
+      }
+
+      const response = await fetch("https://your-backend-api-url/submit", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, joke: jokeText })
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email,
+          joke: jokeContent
+        })
       });
 
-      const result = await res.json();
+      const result = await response.json();
+      const statusMessage = document.getElementById("statusMessage");
+
       if (result.success) {
-        alert("Your joke has been submitted!");
+        statusMessage.textContent = "✅ Joke submitted successfully! It is now under review.";
       } else {
-        alert("Failed to submit joke.");
+        statusMessage.textContent = "❌ Error submitting joke: " + (result.error || "Unknown error");
       }
     });
   </script>
