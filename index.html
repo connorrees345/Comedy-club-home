@@ -8,21 +8,10 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Top Navigation Bar -->
-  <div id="top-menu">
-    <div id="logo">Joke Drop</div>
-    <div id="menu-links">
-      <a href="index.html" class="menu-item">Home</a>
-      <a href="submit.html" class="menu-item">Submit Joke</a>
-      <a href="moderator.html" class="menu-item" id="moderator-link" style="display:none;">Moderator</a>
-      <a href="login.html" id="login-link" class="menu-item">Login</a>
-      <a href="register.html" id="register-link" class="menu-item">Register</a>
-      <a href="dashboard.html" id="dashboard-link" class="menu-item" style="display:none;">Dashboard</a>
-      <a href="#" id="logout-link" class="menu-item" style="display:none;" onclick="logout()">Logout</a>
-    </div>
-  </div>
+  <!-- Sidebar Menu -->
+  <div id="menu-container"></div>
 
-  <!-- Content Section -->
+  <!-- Main content -->
   <h1>Welcome to Joke Drop!</h1>
   <p>Tap the mic to hear a joke</p>
 
@@ -32,40 +21,50 @@
 
   <div id="joke">Waiting for your first laugh...</div>
 
+  <div id="welcome-message"></div>
+
+  <!-- Display the joke -->
   <script>
-    // Update menu links based on login status
-    const email = localStorage.getItem("jokedropUser");
-    if (email) {
-      document.getElementById("logout-link").style.display = "block";
-      document.getElementById("login-link").style.display = "none";
-      document.getElementById("register-link").style.display = "none";
-      document.getElementById("dashboard-link").style.display = "block";
-      
-      if (email === "admin@joke-drop.com") {
-        document.getElementById("moderator-link").style.display = "block";
-      }
-    }
+    // Fetch and load the menu dynamically
+    fetch("menu.html")
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById("menu-container").innerHTML = html;
 
-    // Logout functionality
-    function logout() {
-      localStorage.removeItem('jokedropUser');
-      window.location.href = 'index.html';
-    }
+        const menuToggle = document.getElementById("menu-button");
+        const menuPanel = document.getElementById("side-menu");
+        if (menuToggle && menuPanel) {
+          menuToggle.addEventListener("click", () => {
+            menuPanel.style.left = menuPanel.style.left === "0px" ? "-220px" : "0px";
+          });
+        }
 
-    // Fetch joke
-    async function getJoke() {
+        const email = localStorage.getItem("jokedropUser");
+        if (email) {
+          document.getElementById("logout-link")?.style.setProperty("display", "block");
+          document.getElementById("login-link")?.style.setProperty("display", "none");
+          document.getElementById("register-link")?.style.setProperty("display", "none");
+          document.getElementById("dashboard-link")?.style.setProperty("display", "block");
+
+          // Display a personalized welcome message
+          document.getElementById("welcome-message").innerHTML = `<p>Welcome, ${email}!</p>`;
+
+          if (email === "admin@joke-drop.com") {
+            document.getElementById("moderator-link")?.style.setProperty("display", "block");
+          }
+        }
+      });
+
+    // Function to fetch a random joke
+    function getJoke() {
       const jokeBox = document.getElementById("joke");
       jokeBox.textContent = "Loading a joke...";
-      try {
-        const res = await fetch("https://icanhazdadjoke.com/", {
-          headers: { Accept: "application/json" }
-        });
-        const data = await res.json();
-        jokeBox.textContent = data.joke;
-      } catch (err) {
-        jokeBox.textContent = "Oops! No joke right now.";
-        console.error(err);
-      }
+      fetch("https://icanhazdadjoke.com/", {
+        headers: { Accept: "application/json" }
+      })
+        .then(res => res.json())
+        .then(data => jokeBox.textContent = data.joke)
+        .catch(() => jokeBox.textContent = "Oops! No joke right now.");
     }
   </script>
 </body>
