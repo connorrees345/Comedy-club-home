@@ -6,63 +6,149 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Fredoka&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <style>
+    /* Dashboard card style */
+    .dashboard-card {
+      background-color: rgba(255, 255, 255, 0.1);
+      padding: 15px;
+      border-radius: 10px;
+      margin: 15px auto;
+      max-width: 600px;
+      color: white;
+      text-align: left;
+    }
+    .dashboard-card h3 {
+      margin-top: 0;
+      color: #ffd700;
+    }
+    .dashboard-card p {
+      margin: 5px 0;
+    }
+    .follow-button {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+    .follow-button:hover {
+      background-color: #218838;
+    }
+    #mic-button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      outline: none;
+      padding: 0;
+    }
+    #mic-button img {
+      width: 120px;
+      height: 120px;
+    }
+    #mic-button:hover {
+      transform: scale(1.1);
+      transition: all 0.2s ease-in-out;
+    }
+  </style>
 </head>
 <body>
-  <div id="menu-container"></div>
+  <!-- Menu button for mobile view -->
+  <div id="menu-button" onclick="toggleMenu()">☰</div>
+  <div id="side-menu">
+    <a href="index.html">Home</a>
+    <a href="submit.html">Submit a Joke</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="register.html" id="register-link">Register</a>
+    <a href="login.html" id="login-link">Login</a>
+    <a href="#" onclick="logout()" id="logout-link" style="display:none;">Logout</a>
+    <a href="moderator.html" id="moderator-link" style="display:none;">Moderator</a>
+  </div>
 
-  <h1>Your Dashboard</h1>
+  <h1>Your Joke Drop Dashboard</h1>
   <div id="welcome"></div>
+
   <div id="profile"></div>
   <div id="followCounts"></div>
   <div id="suggestedUsers"></div>
   <div id="jokeList"></div>
-
-  <h2>Trending Jokes</h2>
+  
+  <h2 style="color:white; margin-top: 40px;">Trending Jokes</h2>
   <div id="trendingList"></div>
 
   <script>
-    fetch("menu.html")
-      .then(res => res.text())
-      .then(html => {
-        document.getElementById("menu-container").innerHTML = html;
-      });
+    // Toggle the side menu
+    function toggleMenu() {
+      const menu = document.getElementById("side-menu");
+      menu.style.left = menu.style.left === "0px" ? "-220px" : "0px";
+    }
 
+    function logout() {
+      localStorage.removeItem('jokedropUser');
+      window.location.href = 'index.html';
+    }
+
+    // Checking if the user is logged in
     const email = localStorage.getItem("jokedropUser");
-    if (!email) return window.location.href = "login.html";
+    if (!email) {
+      window.location.href = "login.html";
+    } else {
+      document.getElementById("logout-link").style.display = "block";
+      document.getElementById("login-link").style.display = "none";
+      document.getElementById("register-link").style.display = "none";
+      document.getElementById("dashboard-link").style.display = "block";
 
-    document.getElementById("logout-link").style.display = "block";
-    document.getElementById("login-link").style.display = "none";
-    document.getElementById("register-link").style.display = "none";
+      if (email === "admin@joke-drop.com") {
+        document.getElementById("moderator-link").style.display = "block";
+      }
+    }
 
+    // Load user profile information
     async function loadDashboard() {
       try {
-        const profileRes = await fetch(`/profile?email=${email}`);
+        const profileRes = await fetch(`https://jokedrop-backend.onrender.com/profile?email=${email}`);
         const profileData = await profileRes.json();
+        if (!profileData.success) throw new Error(profileData.error);
 
         const name = profileData.name || email;
-        document.getElementById("welcome").innerHTML = `<p>Welcome, ${name}!</p>`;
+        document.getElementById("welcome").innerHTML = `<p style="font-weight:bold;">Welcome, ${name}!</p>`;
 
-        document.getElementById("profile").innerHTML = `
-          <div>
+        const profileHTML = `
+          <div class="dashboard-card">
             <h3>Profile Info</h3>
-            <p><strong>Name:</strong> ${profileData.name || "(not set)"}</p>
-            <p><strong>Location:</strong> ${profileData.location || "(not set)"}</p>
-            <p><strong>DOB:</strong> ${profileData.dob || "(not set)"}</p>
+            <p><strong>Name:</strong> ${profileData.privacy.name ? profileData.name || "(not set)" : "Hidden"}</p>
+            <p><strong>Location:</strong> ${profileData.privacy.location ? profileData.location || "(not set)" : "Hidden"}</p>
+            <p><strong>DOB:</strong> ${profileData.privacy.dob ? profileData.dob || "(not set)" : "Hidden"}</p>
           </div>
         `;
+        document.getElementById("profile").innerHTML = profileHTML;
 
         document.getElementById("followCounts").innerHTML = `
-          <div>
+          <div class="dashboard-card">
             <h3>Connections</h3>
-            <p><strong>Followers:</strong> ${profileData.followers.length}</p>
-            <p><strong>Following:</strong> ${profileData.following.length}</p>
+            <p><strong>Followers:</strong> ${profileData.followers?.length || 0}</p>
+            <p><strong>Following:</strong> ${profileData.following?.length || 0}</p>
           </div>
         `;
 
-        const jokeRes = await fetch(`/jokes?email=${email}`);
+        const suggestionsRes = await fetch(`https://jokedrop-backend.onrender.com/users/suggestions?email=${email}`);
+        const suggestions = await suggestionsRes.json();
+        if (suggestions.success && suggestions.users.length > 0) {
+          const suggestionsHTML = suggestions.users.map(user => `
+            <div class="dashboard-card">
+              <p><strong>${user.name || user.email}</strong></p>
+              <button class="follow-button" onclick="followUser('${user.email}')">Follow</button>
+            </div>
+          `).join("");
+          document.getElementById("suggestedUsers").innerHTML = `<h2 style='color:white'>Suggested Users</h2>${suggestionsHTML}`;
+        }
+
+        const jokeRes = await fetch(`https://jokedrop-backend.onrender.com/jokes?email=${email}`);
         const jokeData = await jokeRes.json();
+        if (!jokeData.success) throw new Error(jokeData.error);
+
         const jokesHTML = jokeData.jokes.map(joke => `
-          <div>
+          <div class="dashboard-card">
             <h3>${joke.status === "approved" ? "✅ Approved" : "⏳ Pending"} Joke</h3>
             <p>${joke.joke}</p>
           </div>
@@ -70,18 +156,41 @@
 
         document.getElementById("jokeList").innerHTML = jokesHTML || "<p>You haven't submitted any jokes yet.</p>";
 
-        const trendingRes = await fetch("/trending");
+        const trendingRes = await fetch("https://jokedrop-backend.onrender.com/trending");
         const trendingData = await trendingRes.json();
-        const trendingHTML = trendingData.jokes.map(joke => `
-          <div>
-            <h3>🔥 ${joke.name}</h3>
-            <p>${joke.joke}</p>
-          </div>
-        `).join("");
+        if (trendingData.success) {
+          const trendingHTML = trendingData.jokes.map(j => `
+            <div class="dashboard-card">
+              <h3>🔥 ${j.name}</h3>
+              <p>${j.joke}</p>
+            </div>
+          `).join("");
+          document.getElementById("trendingList").innerHTML = trendingHTML || "<p>No trending jokes yet.</p>";
+        }
 
-        document.getElementById("trendingList").innerHTML = trendingHTML || "<p>No trending jokes yet.</p>";
       } catch (err) {
-        document.getElementById("jokeList").innerHTML = "<p>Error loading data.</p>";
+        console.error(err);
+        document.getElementById("jokeList").innerHTML = "<p>⚠️ Failed to load dashboard info.</p>";
+      }
+    }
+
+    async function followUser(targetEmail) {
+      try {
+        const res = await fetch("https://jokedrop-backend.onrender.com/follow", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ follower: email, target: targetEmail })
+        });
+        const result = await res.json();
+        if (result.success) {
+          alert("✅ Followed successfully!");
+          loadDashboard();
+        } else {
+          alert("❌ " + (result.error || "Failed to follow user."));
+        }
+      } catch (err) {
+        console.error(err);
+        alert("❌ Server error");
       }
     }
 
