@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- Side Menu Container -->
   <div id="menu-container"></div>
 
   <h1>Welcome to Joke Drop!</h1>
@@ -20,12 +21,15 @@
 
   <div id="joke">Waiting for your first laugh...</div>
 
+  <!-- Include the menu -->
   <script>
+    // Dynamically load menu.html content
     fetch("menu.html")
       .then(res => res.text())
       .then(html => {
         document.getElementById("menu-container").innerHTML = html;
 
+        // Handle menu button click
         const menuToggle = document.getElementById("menu-button");
         const menuPanel = document.getElementById("side-menu");
         if (menuToggle && menuPanel) {
@@ -34,22 +38,28 @@
           });
         }
 
+        // Handle user-specific functionality
         const email = localStorage.getItem("jokedropUser");
         if (email) {
+          // Show the logout link and hide login/register
           document.getElementById("logout-link")?.style.setProperty("display", "block");
           document.getElementById("login-link")?.style.setProperty("display", "none");
           document.getElementById("register-link")?.style.setProperty("display", "none");
           document.getElementById("dashboard-link")?.style.setProperty("display", "block");
 
+          // Show moderator link if user is admin
           if (email === "admin@joke-drop.com") {
             document.getElementById("moderator-link")?.style.setProperty("display", "block");
           }
         }
       });
 
+    // Get a random joke when the mic button is clicked
     function getJoke() {
       const jokeBox = document.getElementById("joke");
       jokeBox.textContent = "Loading a joke...";
+
+      // Fetch joke from an API
       fetch("https://icanhazdadjoke.com/", {
         headers: { Accept: "application/json" }
       })
