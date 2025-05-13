@@ -10,29 +10,39 @@
 <body>
   <div id="menu-container"></div>
 
-  <h1>Welcome to Joke Drop!</h1>
-  <p>Tap the mic to hear a joke</p>
-
-  <button id="mic-button" onclick="getJoke()">
-    <img src="https://i.imgur.com/QLAfA42.png" alt="Microphone">
-  </button>
-
-  <div id="joke">Waiting for your first laugh...</div>
+  <main>
+    <div id="welcome-container">
+      <h1>Welcome to Joke Drop!</h1>
+      <p>Tap the mic to hear a joke</p>
+      <button id="mic-button" onclick="getJoke()">
+        <img src="https://i.imgur.com/QLAfA42.png" alt="Microphone" id="mic-img">
+      </button>
+      <div id="joke">Waiting for your first laugh...</div>
+    </div>
+    <div id="content-container">
+      <div id="joke-section">
+        <h3>Latest Joke:</h3>
+        <div id="latest-joke">Your latest joke will appear here...</div>
+      </div>
+    </div>
+  </main>
 
   <script>
+    // Fetch the menu from menu.html and add to page
     fetch("menu.html")
       .then(res => res.text())
       .then(html => {
         document.getElementById("menu-container").innerHTML = html;
-
         const menuToggle = document.getElementById("menu-button");
         const menuPanel = document.getElementById("side-menu");
+
         if (menuToggle && menuPanel) {
           menuToggle.addEventListener("click", () => {
             menuPanel.style.left = menuPanel.style.left === "0px" ? "-220px" : "0px";
           });
         }
 
+        // Check if user is logged in and show relevant menu items
         const email = localStorage.getItem("jokedropUser");
         if (email) {
           document.getElementById("logout-link")?.style.setProperty("display", "block");
@@ -46,15 +56,28 @@
         }
       });
 
+    // Fetch and display a joke
     function getJoke() {
       const jokeBox = document.getElementById("joke");
       jokeBox.textContent = "Loading a joke...";
+
       fetch("https://icanhazdadjoke.com/", {
         headers: { Accept: "application/json" }
       })
         .then(res => res.json())
         .then(data => jokeBox.textContent = data.joke)
         .catch(() => jokeBox.textContent = "Oops! No joke right now.");
+    }
+
+    // Update latest joke display
+    function updateLatestJoke(joke) {
+      const latestJokeBox = document.getElementById("latest-joke");
+      latestJokeBox.textContent = joke || "No joke available.";
+    }
+
+    // Call the getJoke function for the first joke when the page loads
+    window.onload = function() {
+      getJoke();
     }
   </script>
 </body>
