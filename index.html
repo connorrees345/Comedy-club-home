@@ -6,17 +6,60 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Fredoka&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      font-family: 'Fredoka', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    #top-menu {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+      background-color: #f0f0f0;
+      border-bottom: 1px solid #ccc;
+    }
+
+    #logo-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #logo-title img {
+      height: 40px;
+    }
+
+    #menu-links .menu-item {
+      margin-left: 15px;
+      text-decoration: none;
+      color: #333;
+      font-weight: bold;
+    }
+
+    #mic-button {
+      margin: 20px;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    #joke {
+      font-size: 1.2em;
+      margin: 20px;
+    }
+  </style>
 </head>
 <body>
-  
-  <div id="menu-container"></div>
 
-  <h1><img src="images/logo.png" alt="Joke Drop Logo" style="max-width: 100%; height: auto;"></h1>
-  
-  
   <!-- Top Navigation Bar -->
   <div id="top-menu">
-    <div id="logo">Joke Drop</div>
+    <div id="logo-title">
+      <img src="images/logo.png" alt="Joke Drop Logo">
+      <span>Joke Drop</span>
+    </div>
     <div id="menu-links">
       <a href="index.html" class="menu-item">Home</a>
       <a href="submit.html" class="menu-item">Submit Joke</a>
@@ -32,7 +75,7 @@
   <h1>Welcome to Joke Drop!</h1>
   <p>Tap the mic to hear a joke</p>
 
-  <button id="mic-button" onclick="getJoke()">
+  <button id="mic-button" onclick="getJoke()" aria-label="Hear a joke">
     <img src="https://i.imgur.com/QLAfA42.png" alt="Microphone">
   </button>
 
@@ -46,7 +89,7 @@
       document.getElementById("login-link").style.display = "none";
       document.getElementById("register-link").style.display = "none";
       document.getElementById("dashboard-link").style.display = "block";
-      
+
       if (email === "admin@joke-drop.com") {
         document.getElementById("moderator-link").style.display = "block";
       }
