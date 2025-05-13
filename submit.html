@@ -1,152 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Submit a Joke - Joke Drop</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Fredoka', sans-serif;
-      background-image: url('background.webp');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      color: white;
-      text-align: center;
-      padding: 20px;
-      text-shadow: 1px 1px 2px black;
-    }
-
-    textarea {
-      width: 90%;
-      max-width: 500px;
-      padding: 12px;
-      font-size: 1em;
-      border-radius: 10px;
-      border: none;
-      margin-bottom: 20px;
-    }
-
-    button {
-      padding: 12px 30px;
-      font-size: 1.1em;
-      font-family: 'Fredoka', sans-serif;
-      background-color: #28a745;
-      color: white;
-      border: none;
-      border-radius: 50px;
-      cursor: pointer;
-      transition: background-color 0.3s ease, transform 0.2s ease;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    }
-
-    button:hover {
-      background-color: #218838;
-      transform: scale(1.05);
-    }
-
-    button:active {
-      transform: scale(0.98);
-    }
-
-    #response {
-      margin-top: 20px;
-      font-weight: bold;
-    }
-
-    .moderator-btn {
-      margin-top: 20px;
-      padding: 10px 20px;
-      background-color: #ff5722;
-      border-radius: 5px;
-      cursor: pointer;
-      color: white;
-      border: none;
-    }
-
-    .moderator-btn:hover {
-      background-color: #e64a19;
-    }
-  </style>
+  <meta charset="UTF-8">
+  <title>Submit Joke - Joke Drop</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div id="menu-container"></div>
 
-  <h1>Submit a Joke</h1>
-
+  <h1>Submit Your Joke!</h1>
   <form id="jokeForm">
-    <textarea id="joke" placeholder="Write your joke here..." rows="5" required></textarea><br>
-    <button type="submit">📨 Submit Joke</button>
+    <input type="text" id="joke" placeholder="Your joke here" required><br><br>
+    <button type="submit">Submit Joke</button>
   </form>
 
-  <p id="response"></p>
-
   <script>
-    // Load menu.html and set up the sidebar
     fetch("menu.html")
       .then(res => res.text())
       .then(html => {
         document.getElementById("menu-container").innerHTML = html;
-
-        const email = localStorage.getItem("jokedropUser");
-
-        // Display logout, dashboard, and admin options for logged-in users
-        if (email) {
-          document.getElementById("logout-link")?.style.setProperty("display", "block");
-          document.getElementById("login-link")?.style.setProperty("display", "none");
-          document.getElementById("register-link")?.style.setProperty("display", "none");
-          document.getElementById("dashboard-link")?.style.setProperty("display", "block");
-
-          if (email === "admin@joke-drop.com") {
-            document.getElementById("moderator-link")?.style.setProperty("display", "block");
-          }
-        }
-
-        // Menu button toggle functionality
-        const menuButton = document.getElementById("menu-button");
-        const sideMenu = document.getElementById("side-menu");
-        if (menuButton && sideMenu) {
-          menuButton.addEventListener("click", () => {
-            sideMenu.style.left = sideMenu.style.left === "0px" ? "-220px" : "0px";
-          });
-        }
       });
 
-    // Ensure user is logged in
-    const email = localStorage.getItem("jokedropUser");
-    if (!email) {
-      window.location.href = "login.html";
-    }
-
-    // Submit form to backend
     document.getElementById("jokeForm").addEventListener("submit", async (e) => {
       e.preventDefault();
-      const joke = document.getElementById("joke").value;
-      const responseBox = document.getElementById("response");
+      const jokeText = document.getElementById("joke").value;
 
-      try {
-        const res = await fetch("https://jokedrop-backend.onrender.com/submit", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, joke })
-        });
+      const email = localStorage.getItem("jokedropUser");
+      if (!email) return window.location.href = "login.html";
 
-        const result = await res.json();
-        responseBox.textContent = result.success
-          ? "✅ Joke submitted for review!"
-          : `❌ ${result.error || "Submission failed."}`;
-      } catch {
-        responseBox.textContent = "❌ Server error.";
+      const res = await fetch("/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, joke: jokeText })
+      });
+
+      const result = await res.json();
+      if (result.success) {
+        alert("Your joke has been submitted!");
+      } else {
+        alert("Failed to submit joke.");
       }
     });
-
-    function logout() {
-      localStorage.removeItem("jokedropUser");
-      window.location.href = "index.html";
-    }
   </script>
 </body>
 </html>
