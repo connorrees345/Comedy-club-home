@@ -1,38 +1,23 @@
-<!-- Menu HTML -->
-<div id="menu-button" onclick="toggleMenu()">☰</div>
-<div id="side-menu">
+<div id="side-menu" style="left: -220px;">
   <a href="index.html">Home</a>
   <a href="submit.html">Submit a Joke</a>
-  <a href="dashboard.html" id="dashboard-link" style="display: none;">Dashboard</a>
+  <a href="dashboard.html" id="dashboard-link">Dashboard</a>
   <a href="register.html" id="register-link">Register</a>
   <a href="login.html" id="login-link">Login</a>
-  <a href="#" onclick="logout()" id="logout-link" style="display: none;">Logout</a>
-  <a href="moderator.html" id="moderator-link" style="display: none;">Moderator</a>
+  <a href="moderate.html" id="moderator-link" style="display: none;">Moderator</a>
+  <a href="#" onclick="logout()" id="logout-link" style="display:none;">Logout</a>
 </div>
 
+<div id="menu-button" onclick="toggleMenu()">☰</div>
+
 <script>
-  // Toggle the side menu visibility
   function toggleMenu() {
     const menu = document.getElementById("side-menu");
     menu.style.left = (menu.style.left === "0px") ? "-220px" : "0px";
   }
 
-  // Handle user logout and show the correct links
   function logout() {
-    localStorage.removeItem('jokedropUser');
-    window.location.href = 'index.html';
-  }
-
-  // Check if user is logged in and update the menu accordingly
-  const email = localStorage.getItem("jokedropUser");
-  if (email) {
-    document.getElementById("logout-link").style.display = "block";
-    document.getElementById("login-link").style.display = "none";
-    document.getElementById("register-link").style.display = "none";
-    document.getElementById("dashboard-link").style.display = "block";
-
-    if (email === "admin@joke-drop.com") {
-      document.getElementById("moderator-link").style.display = "block";
-    }
+    localStorage.removeItem("jokedropUser");
+    window.location.href = "index.html";
   }
 </script>
